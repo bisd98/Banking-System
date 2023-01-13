@@ -5,13 +5,13 @@ import java.util.Objects;
 
 public class Bank {
     String bankName;
-
     LocalDate creationDate;
     float bankResources = 0;
 
-    ArrayList<Client> accounts = new ArrayList<>();
+    ArrayList<Client> accounts;
 
-    String ownerLogin, password;
+
+    String ownerLogin, ownerPassword;
 
     static void creatingMenu() {
         System.out.println("\nEnter your Bank name: ");
@@ -47,7 +47,18 @@ public class Bank {
             case 1:
                 manageBank();
             case 2:
-                System.out.println("coming soon...");
+                if (this.accounts.size() == 0){
+                    System.out.println("\nNo clients yet");
+                    Main.waitForUser();
+                    bankDashboard();
+                }
+                System.out.println("\nBank customer list :\n");
+                for (int counter = 0; counter < this.accounts.size(); counter++){
+                    System.out.println(String.valueOf(counter + 1) + ". Client ID: "
+                            + this.accounts.get(counter).clientID
+                            + ", Name: " + this.accounts.get(counter).customerPersonalData.name
+                            + " " + this.accounts.get(counter).customerPersonalData.surname);
+                }
                 Main.waitForUser();
                 bankDashboard();
             case 3:
@@ -124,7 +135,7 @@ public class Bank {
             Main.waitForUser();
             return false;
         } else {
-            if (!Objects.equals(inPassword, this.password)) {
+            if (!Objects.equals(inPassword, this.ownerPassword)) {
                 System.out.println("\nPassword incorrect!");
                 Main.waitForUser();
                 return false;
@@ -138,6 +149,7 @@ public class Bank {
         this.bankName = bankName;
         this.bankResources = bankResources;
         this.creationDate = LocalDate.now();
+        this.accounts = new ArrayList<>();
     }
 
     public String getBankName() {
@@ -150,7 +162,7 @@ public class Bank {
         System.out.println("Set owner password: ");
         String password = Main.scanner.next();
         this.ownerLogin = login;
-        this.password = password;
+        this.ownerPassword = password;
     }
 
     void setBankName(String bankName) {
@@ -158,6 +170,8 @@ public class Bank {
     }
 
     void setPassword(String password) {
-        this.password = password;
+        this.ownerPassword = password;
     }
+
+
 }
