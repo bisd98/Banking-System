@@ -5,15 +5,14 @@ import java.util.Objects;
 
 public class Bank {
     String bankName;
-    LocalDate creationDate;
+    LocalDate bankCreationDate;
     float bankResources = 0;
-
-    ArrayList<Client> accounts;
-
-
     String ownerLogin, ownerPassword;
+    int bic;
+    ArrayList<Client> clients;
+    ArrayList<Long> individualNumbers;
 
-    static void creatingMenu() {
+    static void creatingBankMenu() {
         System.out.println("\nEnter your Bank name: ");
         String name = Main.scanner.next();
         name += Main.scanner.nextLine();
@@ -28,9 +27,9 @@ public class Bank {
         Main.clearScreen();
         System.out.println(Main.logo);
         System.out.println("\nBank name: " + this.bankName);
-        System.out.println("Creation date: " + this.creationDate);
+        System.out.println("Creation date: " + this.bankCreationDate);
         System.out.println("Bank resources: " + this.bankResources + '$');
-        System.out.println("Clients: " + this.accounts.size());
+        System.out.println("Clients: " + this.clients.size());
         System.out.println(
                 "\nSelect:\n" +
                         "1. Manage your Bank\n" +
@@ -47,17 +46,17 @@ public class Bank {
             case 1:
                 manageBank();
             case 2:
-                if (this.accounts.size() == 0){
+                if (this.clients.size() == 0){
                     System.out.println("\nNo clients yet");
                     Main.waitForUser();
                     bankDashboard();
                 }
                 System.out.println("\nBank customer list :\n");
-                for (int counter = 0; counter < this.accounts.size(); counter++){
+                for (int counter = 0; counter < this.clients.size(); counter++){
                     System.out.println(String.valueOf(counter + 1) + ". Client ID: "
-                            + this.accounts.get(counter).clientID
-                            + ", Name: " + this.accounts.get(counter).customerPersonalData.name
-                            + " " + this.accounts.get(counter).customerPersonalData.surname);
+                            + this.clients.get(counter).clientID
+                            + ", Name: " + this.clients.get(counter).clientPersonalData.name
+                            + " " + this.clients.get(counter).clientPersonalData.surname);
                 }
                 Main.waitForUser();
                 bankDashboard();
@@ -148,8 +147,10 @@ public class Bank {
 
         this.bankName = bankName;
         this.bankResources = bankResources;
-        this.creationDate = LocalDate.now();
-        this.accounts = new ArrayList<>();
+        this.bankCreationDate = LocalDate.now();
+        this.clients = new ArrayList<>();
+        this.bic = setBIC();
+        this.individualNumbers = new ArrayList<>();
     }
 
     public String getBankName() {
@@ -173,5 +174,24 @@ public class Bank {
         this.ownerPassword = password;
     }
 
+    boolean checkBIC(int generatedBIC) {
+        if (Main.banks.isEmpty()) {
+            return true;
+        }
+        for (Bank bank : Main.banks) {
+            if (generatedBIC == bank.bic) {
+                return false;
+            }
+        }
+        return true;
+    }
 
+    int setBIC(){
+        int range = 99999999 - 10000000 + 1;
+        int newBIC;
+        do {
+            newBIC = Main.rand.nextInt(range) + 10000000;
+        } while (!checkBIC(newBIC));
+        return newBIC;
+    }
 }

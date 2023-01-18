@@ -1,5 +1,7 @@
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.Scanner;
 
 public class Main {
@@ -11,12 +13,26 @@ public class Main {
             "                            /___/      /___/                   \n" +
             "_______________________________________________________________";
     static final Scanner scanner = new Scanner(System.in);
-
+    static Random rand = new Random();
     static ArrayList<Bank> banks = new ArrayList<>();
     public static void main(String[] args) throws IOException {
+        //testCode();
         menu();
     }
 
+    static void testCode(){
+        Bank testBank = new Bank("Test Bank", 1000);
+        testBank.ownerLogin = "admin";
+        testBank.ownerPassword = "admin";
+        banks.add(testBank);
+        Client testClient = new Client(Client.clientIDGenerator(1),
+                new PersonalData("Luke", "Lucky", 77777777777L,
+                        LocalDate.parse("1997-07-07"), "luke@gmail.com",
+                        777777777L), 1);
+        testClient.clientID = 777;
+        testClient.clientPassword = "admin";
+        testBank.clients.add(testClient);
+    }
     private static void menu() throws IOException {
         clearScreen();
         System.out.println(logo);
@@ -77,7 +93,7 @@ public class Main {
             case 2:
                 clearScreen();
                 System.out.println(logo);
-                Bank.creatingMenu();
+                Bank.creatingBankMenu();
                 waitForUser();
                 bankMenu();
             case 3:
@@ -119,10 +135,10 @@ public class Main {
                 System.out.println(logo);
                 System.out.println("\nEnter client ID:");
                 int inClientID = scanner.nextInt();
-                for (Client acc : banks.get(choiceBank - 1).accounts){
+                for (Client acc : banks.get(choiceBank - 1).clients){
                     if (inClientID == acc.clientID){
-                        if (acc.logInToAccount()){
-                            acc.accountDashboard();
+                        if (acc.logInToClient()){
+                            acc.clientDashboard();
                         }
                         else {clientMenu();}
                     }
@@ -131,7 +147,7 @@ public class Main {
                 waitForUser();
                 clientMenu();
             case 2:
-                Client.creatingAccountMenu();
+                Client.creatingClientMenu();
                 waitForUser();
                 clientMenu();
             case 3:
@@ -145,7 +161,7 @@ public class Main {
         System.out.println("\npress any key to continue...");
         System.in.read();
     }
-    public static void clearScreen() {
+    public static void clearScreen(){
         System.out.print("\033[H\033[2J");
         System.out.flush();
     }

@@ -4,12 +4,12 @@ import java.time.LocalDate;
 public class PersonalData {
     String name;
     String surname;
-    int personalID;
+    Long personalID;
     LocalDate dateOfBirth;
     String email;
-    int phoneNumber;
+    Long phoneNumber;
 
-    static PersonalData personalDataForm(){
+    static PersonalData personalDataForm() {
         Main.clearScreen();
         System.out.println(Main.logo);
         System.out.println("\nEnter your name: ");
@@ -17,13 +17,13 @@ public class PersonalData {
         System.out.println("Enter your surname: ");
         String userSurname = Main.scanner.next();
         System.out.println("Enter your Personal ID Number: ");
-        int userPersonalID = Main.scanner.nextInt();
+        Long userPersonalID = Main.scanner.nextLong();
         System.out.println("Enter your date of birth (yyyy-MM-d): ");
         LocalDate userBirthDate = LocalDate.parse(Main.scanner.next());
         System.out.println("Enter your email address: ");
         String userEmail = Main.scanner.next();
         System.out.println("Enter your phone number: ");
-        int userPhone = Main.scanner.nextInt();
+        Long userPhone = Main.scanner.nextLong();
         return new PersonalData(userName, userSurname, userPersonalID,
                 userBirthDate, userEmail, userPhone);
     }
@@ -62,7 +62,7 @@ public class PersonalData {
                 System.out.println(Main.logo);
                 System.out.println("\nYour phone number: " + this.email);
                 System.out.println("\nEnter new phone number: ");
-                setPhoneNumber(Main.scanner.nextInt());
+                setPhoneNumber(Main.scanner.nextLong());
                 System.out.println("\nPhone number has been successfully changed");
                 Main.waitForUser();
                 managePersonalData();
@@ -73,8 +73,8 @@ public class PersonalData {
         }
         return true;
     }
-    PersonalData(String name, String surname, int personalID,
-                 LocalDate dateOfBirth, String email, int phoneNumber) {
+    PersonalData(String name, String surname, Long personalID,
+                 LocalDate dateOfBirth, String email, Long phoneNumber) {
         this.name = name;
         this.surname = surname;
         this.personalID = personalID;
@@ -83,43 +83,11 @@ public class PersonalData {
         this.phoneNumber = phoneNumber;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getSurname() {
-        return surname;
-    }
-
-    public void setSurname(String surname) {
-        this.surname = surname;
-    }
-
-    public int getPersonalID() {
-        return personalID;
-    }
-
-    public LocalDate getDateOfBirth() {
-        return dateOfBirth;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
     public void setEmail(String email) {
         this.email = email;
     }
 
-    public int getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(int phoneNumber) {
+    public void setPhoneNumber(Long phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
 }
