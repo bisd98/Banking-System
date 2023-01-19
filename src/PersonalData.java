@@ -9,6 +9,16 @@ public class PersonalData {
     String email;
     Long phoneNumber;
 
+    PersonalData(String name, String surname, Long personalID,
+                 LocalDate dateOfBirth, String email, Long phoneNumber) {
+        this.name = name;
+        this.surname = surname;
+        this.personalID = personalID;
+        this.dateOfBirth = dateOfBirth;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+    }
+
     static PersonalData personalDataForm() {
         Main.clearScreen();
         System.out.println(Main.logo);
@@ -52,7 +62,7 @@ public class PersonalData {
                 Main.clearScreen();
                 System.out.println(Main.logo);
                 System.out.println("\nYour email address: " + this.email);
-                System.out.println("\nEnter new email address: ");
+                System.out.print("\nEnter new email address: ");
                 setEmail(Main.scanner.next());
                 System.out.println("\nEmail address has been successfully changed");
                 Main.waitForUser();
@@ -60,8 +70,8 @@ public class PersonalData {
             case 2:
                 Main.clearScreen();
                 System.out.println(Main.logo);
-                System.out.println("\nYour phone number: " + this.email);
-                System.out.println("\nEnter new phone number: ");
+                System.out.println("\nYour phone number: " + this.phoneNumber);
+                System.out.print("\nEnter new phone number: ");
                 setPhoneNumber(Main.scanner.nextLong());
                 System.out.println("\nPhone number has been successfully changed");
                 Main.waitForUser();
@@ -72,15 +82,6 @@ public class PersonalData {
                 System.exit(1);
         }
         return true;
-    }
-    PersonalData(String name, String surname, Long personalID,
-                 LocalDate dateOfBirth, String email, Long phoneNumber) {
-        this.name = name;
-        this.surname = surname;
-        this.personalID = personalID;
-        this.dateOfBirth = dateOfBirth;
-        this.email = email;
-        this.phoneNumber = phoneNumber;
     }
 
     public void setEmail(String email) {

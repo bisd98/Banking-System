@@ -13,6 +13,14 @@ public class Client {
 
     ArrayList<Account> clientBankAccounts;
 
+    Client(int clientID, PersonalData customerPersonalData, int customerBankIndex) {
+        this.clientID = clientID;
+        this.clientJoinDate = LocalDate.now();
+        this.clientPersonalData = customerPersonalData;
+        this.clientBank = Main.banks.get(customerBankIndex - 1);
+        this.clientBankAccounts = new ArrayList<>();
+    }
+
     static int clientIDGenerator(int indexBank) {
         int range = 999999999 - 100000000 + 1;
         int clientGeneratedID;
@@ -63,7 +71,7 @@ public class Client {
     }
 
     boolean logInToClient() throws IOException {
-        System.out.println("Enter password:");
+        System.out.print("Enter password: ");
         String inClientPassword = Main.scanner.next();
         if (!Objects.equals(inClientPassword, this.clientPassword)) {
             System.out.println("\nPassword incorrect!");
@@ -71,6 +79,21 @@ public class Client {
             return false;
         }
         return true;
+    }
+
+    void showClientAccounts() throws IOException {
+        if (this.clientBankAccounts.size() == 0) {
+            System.out.println("No bank accounts yet");
+            Main.waitForUser();
+            clientDashboard();
+        }
+        for (int counter = 0; counter < this.clientBankAccounts.size(); counter++) {
+            System.out.println(String.valueOf(counter + 1) + ". Account number: "
+                    + this.clientBankAccounts.get(counter).accountNumber
+                    + "\nType: " + this.clientBankAccounts.get(counter).accountType
+                    + "\nResources: " + this.clientBankAccounts.get(counter).accountResources
+                    + "$");
+        }
     }
 
     void clientDashboard() throws IOException {
@@ -83,7 +106,7 @@ public class Client {
                 "\nSelect:\n" +
                         "1. Your accounts\n" +
                         "2. Create account\n" +
-                        "3. -(Make a transfer)-\n" +
+                        "3. Make a transfer\n" +
                         "4. -(Take credit)-\n" +
                         "5. Manage your personal data\n" +
                         "6. Log out\n" +
@@ -96,20 +119,15 @@ public class Client {
             case 1:
                 Main.clearScreen();
                 System.out.println(Main.logo);
-                if (this.clientBankAccounts.size() == 0) {
-                    System.out.println("\nNo bank accounts yet");
-                    Main.waitForUser();
+                System.out.println("\nYour bank accounts :\n");
+                showClientAccounts();
+                System.out.println("\n0. Back");
+                System.out.print("\nchoice: ");
+                choice = Main.scanner.nextInt();
+                if (choice == 0){
                     clientDashboard();
                 }
-                System.out.println("\nYour bank accounts :\n");
-                for (int counter = 0; counter < this.clientBankAccounts.size(); counter++) {
-                    System.out.println(String.valueOf(counter + 1) + ". Account number: "
-                            + this.clientBankAccounts.get(counter).accountNumber
-                            + "\nType: " + this.clientBankAccounts.get(counter).accountType
-                            + "\nResources: " + this.clientBankAccounts.get(counter).accountResources
-                            + "$");
-                }
-                Main.waitForUser();
+                this.clientBankAccounts.get(choice - 1).accountDashboard();
                 clientDashboard();
             case 2:
                 Account newAccount = Account.creatingAccountMenu(this.clientBank);
@@ -117,12 +135,22 @@ public class Client {
                     System.out.println("No new bank account opened");
                 } else {
                     this.clientBankAccounts.add(newAccount);
-                    System.out.println("Bank account successfully opened");
+                    System.out.println("\nBank account successfully opened");
                 }
                 Main.waitForUser();
                 clientDashboard();
             case 3:
-                System.out.println("coming soon...");
+                Main.clearScreen();
+                System.out.println(Main.logo);
+                System.out.println("\nSelect the bank account from which you want to make the transfer:\n");
+                showClientAccounts();
+                System.out.print("\nchoice: ");
+                choice = Main.scanner.nextInt();
+                if (Transfer.createTransferMenu(this.clientBankAccounts.get(choice - 1))){
+                    System.out.println("The transfer was successful");
+                }else {
+                    System.out.println("The transfer was unsuccessful");
+                }
                 Main.waitForUser();
                 clientDashboard();
             case 4:
@@ -134,19 +162,11 @@ public class Client {
                     clientDashboard();
                 }
             case 6:
-                Main.bankMenu();
+                Main.clientMenu();
             case 0:
                 System.exit(1);
         }
 
-    }
-
-    Client(int clientID, PersonalData customerPersonalData, int customerBankIndex) {
-        this.clientID = clientID;
-        this.clientJoinDate = LocalDate.now();
-        this.clientPersonalData = customerPersonalData;
-        this.clientBank = Main.banks.get(customerBankIndex - 1);
-        this.clientBankAccounts = new ArrayList<>();
     }
 
     public void setClientPassword(String clientPassword) {

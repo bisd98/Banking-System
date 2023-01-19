@@ -1,6 +1,7 @@
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 
 public class Account {
     String accountNumber;
@@ -8,20 +9,30 @@ public class Account {
     float accountResources = 0;
     LocalDate accountCreationDate;
 
+    ArrayList<Transfer> accountTransfers;
+
+    Account(String accountNumber, String accountType, float accountResources) {
+        this.accountNumber = accountNumber;
+        this.accountType = accountType;
+        this.accountResources = accountResources;
+        this.accountCreationDate = LocalDate.now();
+        this.accountTransfers = new ArrayList<>();
+    }
+
     static Account creatingAccountMenu(Bank clientBank) throws IOException {
         Main.clearScreen();
         System.out.println(Main.logo);
-        System.out.println("Select a new account type:\n" +
-                "1. Regular account\n" +
+        System.out.println("\nSelect a new account type:\n" +
+                "\n1. Regular account\n" +
                 "2. Savings account\n" +
-                "0. Back\n");
-        System.out.print("choice: ");
+                "0. Back");
+        System.out.print("\nchoice: ");
         int choice = Main.scanner.nextInt();
         Main.clearScreen();
         System.out.println(Main.logo);
-        switch (choice){
+        switch (choice) {
             case 1:
-                System.out.println("Enter initial Account resources: ");
+                System.out.print("\nEnter initial Account resources: ");
                 float res = Main.scanner.nextFloat();
                 return new Account(accountNumberGenerator(clientBank),
                         "Regular account", res);
@@ -35,9 +46,6 @@ public class Account {
         return null;
     }
 
-    void accountDashboard(){
-
-    }
     static String accountNumberGenerator(Bank clientBank) {
         long range = 9999999999999999L - 1000000000000000L + 1;
         long individualAccNumber;
@@ -49,6 +57,47 @@ public class Account {
                 + accountCheckDigitGenerator(Integer.toString(clientBank.bic)
                 + Long.toString(individualAccNumber))
                 + clientBank.bic + individualAccNumber);
+    }
+
+    void accountDashboard() throws IOException {
+        Main.clearScreen();
+        System.out.println(Main.logo);
+        System.out.println(String.valueOf("\nAccount number: "
+                + this.accountNumber + "\nType: " + this.accountType
+                + "\nResources: " + this.accountResources + "$"
+                + "\nCreation date: " + this.accountCreationDate));
+        System.out.println("\nSelect:" +
+                "\n1. Show transfers\n" +
+                "2. Export transfers\n" +
+                "0. Back");
+        System.out.print("\nchoice: ");
+        int choice = Main.scanner.nextInt();
+        Main.clearScreen();
+        System.out.println(Main.logo);
+        switch (choice) {
+            case 1:
+                if (this.accountTransfers.size() == 0) {
+                    System.out.println("\nThere are no transfers yet");
+                    Main.waitForUser();
+                    accountDashboard();
+                }
+                for (Transfer anyTransfer : this.accountTransfers) {
+                    System.out.println("\nTransfer date: " + anyTransfer.transferDate
+                            + "\nTransfer sender: " + anyTransfer.transferSender
+                            + "\nRecipient of the transfer: " + anyTransfer.transferRecipient
+                            + "\nResources: " + anyTransfer.transferAmount
+                            + "\nDescription: " + anyTransfer.transferDescription);
+                }
+                Main.waitForUser();
+                accountDashboard();
+            case 2:
+                System.out.println("coming soon...");
+                Main.waitForUser();
+                accountDashboard();
+                break;
+            case 0:
+                break;
+        }
     }
 
     static boolean accountCheckNumber(long accountGeneratedNumber, Bank clientBank) {
@@ -78,12 +127,5 @@ public class Account {
         BigDecimal remainder = bigDecimal.remainder(new BigDecimal(97));
         int checkSum = remainder.intValue();
         return 98 - checkSum;
-    }
-
-    Account(String accountNumber, String accountType, float accountResources) {
-        this.accountNumber = accountNumber;
-        this.accountType = accountType;
-        this.accountResources = accountResources;
-        this.accountCreationDate = LocalDate.now();
     }
 }

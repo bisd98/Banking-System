@@ -15,12 +15,13 @@ public class Main {
     static final Scanner scanner = new Scanner(System.in);
     static Random rand = new Random();
     static ArrayList<Bank> banks = new ArrayList<>();
+
     public static void main(String[] args) throws IOException {
-        //testCode();
+        testCode();
         menu();
     }
 
-    static void testCode(){
+    static void testCode() {
         Bank testBank = new Bank("Test Bank", 1000);
         testBank.ownerLogin = "admin";
         testBank.ownerPassword = "admin";
@@ -33,14 +34,15 @@ public class Main {
         testClient.clientPassword = "admin";
         testBank.clients.add(testClient);
     }
+
     private static void menu() throws IOException {
         clearScreen();
         System.out.println(logo);
         System.out.println(
                 "\nSelect:\n" +
-                "1. Bank menu\n" +
-                "2. Client menu\n" +
-                "0. Exit\n");
+                        "1. Bank menu\n" +
+                        "2. Client menu\n" +
+                        "0. Exit\n");
 
         System.out.print("choice: ");
         int choice = scanner.nextInt();
@@ -61,10 +63,10 @@ public class Main {
         System.out.println(logo);
         System.out.println(
                 "\nSelect:\n" +
-                "1. Log in to the Bank\n" +
-                "2. Create a new Bank\n" +
-                "3. Back\n" +
-                "0. Exit\n");
+                        "1. Log in to the Bank\n" +
+                        "2. Create a new Bank\n" +
+                        "3. Back\n" +
+                        "0. Exit\n");
 
         System.out.print("choice: ");
         int choice = scanner.nextInt();
@@ -73,23 +75,24 @@ public class Main {
             case 1:
                 clearScreen();
                 System.out.println(logo);
-                if (banks.size() == 0){
+                if (banks.size() == 0) {
                     System.out.println("\nThere are no banks yet");
                     waitForUser();
                     bankMenu();
                 }
                 System.out.println("\nSelect a bank: ");
-                for (int counter = 0; counter < banks.size(); counter++){
+                for (int counter = 0; counter < banks.size(); counter++) {
                     System.out.println(String.valueOf(counter + 1) + ". " + banks.get(counter).getBankName());
                 }
                 System.out.print("\nchoice: ");
                 int choiceBank = scanner.nextInt();
                 clearScreen();
                 System.out.println(logo);
-                if (banks.get(choiceBank - 1).logInToBank()){
+                if (banks.get(choiceBank - 1).logInToBank()) {
                     banks.get(choiceBank - 1).bankDashboard();
+                } else {
+                    bankMenu();
                 }
-                else {bankMenu();}
             case 2:
                 clearScreen();
                 System.out.println(logo);
@@ -120,27 +123,28 @@ public class Main {
             case 1:
                 clearScreen();
                 System.out.println(logo);
-                if (banks.size() == 0){
+                if (banks.size() == 0) {
                     System.out.println("\nThere are no banks yet");
                     waitForUser();
                     clientMenu();
                 }
                 System.out.println("\nSelect your bank: ");
-                for (int counter = 0; counter < banks.size(); counter++){
+                for (int counter = 0; counter < banks.size(); counter++) {
                     System.out.println(String.valueOf(counter + 1) + ". " + banks.get(counter).getBankName());
                 }
                 System.out.print("\nchoice: ");
                 int choiceBank = scanner.nextInt();
                 clearScreen();
                 System.out.println(logo);
-                System.out.println("\nEnter client ID:");
+                System.out.print("\nEnter client ID: ");
                 int inClientID = scanner.nextInt();
-                for (Client acc : banks.get(choiceBank - 1).clients){
-                    if (inClientID == acc.clientID){
-                        if (acc.logInToClient()){
+                for (Client acc : banks.get(choiceBank - 1).clients) {
+                    if (inClientID == acc.clientID) {
+                        if (acc.logInToClient()) {
                             acc.clientDashboard();
+                        } else {
+                            clientMenu();
                         }
-                        else {clientMenu();}
                     }
                 }
                 System.out.println("There is no customer with this ID in this bank");
@@ -161,7 +165,8 @@ public class Main {
         System.out.println("\npress any key to continue...");
         System.in.read();
     }
-    public static void clearScreen(){
+
+    public static void clearScreen() {
         System.out.print("\033[H\033[2J");
         System.out.flush();
     }

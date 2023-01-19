@@ -12,9 +12,20 @@ public class Bank {
     ArrayList<Client> clients;
     ArrayList<Long> individualNumbers;
 
+    Bank(String bankName, float bankResources) {
+
+        this.bankName = bankName;
+        this.bankResources = bankResources;
+        this.bankCreationDate = LocalDate.now();
+        this.clients = new ArrayList<>();
+        this.bic = setBIC();
+        this.individualNumbers = new ArrayList<>();
+    }
+
     static void creatingBankMenu() {
         System.out.println("\nEnter your Bank name: ");
-        String name = Main.scanner.next();
+        String name = "";
+        Main.scanner.nextLine();
         name += Main.scanner.nextLine();
         System.out.println("Enter initial Bank resources: ");
         float res = Main.scanner.nextFloat();
@@ -141,16 +152,6 @@ public class Bank {
             }
         }
         return true;
-    }
-
-    Bank(String bankName, float bankResources) {
-
-        this.bankName = bankName;
-        this.bankResources = bankResources;
-        this.bankCreationDate = LocalDate.now();
-        this.clients = new ArrayList<>();
-        this.bic = setBIC();
-        this.individualNumbers = new ArrayList<>();
     }
 
     public String getBankName() {
