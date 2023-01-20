@@ -10,7 +10,6 @@ public class Client {
     String clientPassword;
     LocalDate clientJoinDate;
     Bank clientBank;
-
     ArrayList<Account> clientBankAccounts;
 
     Client(int clientID, PersonalData customerPersonalData, int customerBankIndex) {
@@ -90,11 +89,11 @@ public class Client {
         for (int counter = 0; counter < this.clientBankAccounts.size(); counter++) {
             System.out.println("\n" + String.valueOf(counter + 1) + ". Account number: "
                     + this.clientBankAccounts.get(counter).accountNumber
-                    + "\nType: " + this.clientBankAccounts.get(counter).accountType
-                    + "\nResources: " + this.clientBankAccounts.get(counter).accountResources
+                    + "\n   Type: " + this.clientBankAccounts.get(counter).accountType
+                    + "\n   Resources: " + this.clientBankAccounts.get(counter).accountResources
                     + "$");
                     if (this.clientBankAccounts.get(counter) instanceof SavingsAccount){
-                        System.out.println("Monthly interest - "
+                        System.out.println("   Monthly interest - "
                                 + clientBank.bankInterestRate * 100 + "%");
                     }
         }

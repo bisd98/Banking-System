@@ -4,9 +4,9 @@ import java.util.concurrent.TimeUnit;
 
 public class SavingsAccount extends Account{
     float interestRate;
-    SavingsAccount(String accountNumber, String accountType,
+    SavingsAccount(String accountNumber, String accountType, Bank accountBank,
                    float accountResources, float interestRate) {
-        super(accountNumber, accountType, accountResources);
+        super(accountNumber, accountType, accountResources, accountBank);
         this.interestRate = interestRate;
     }
 

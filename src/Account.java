@@ -2,21 +2,26 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class Account {
     String accountNumber;
     String accountType;
     float accountResources = 0;
     LocalDate accountCreationDate;
-
+    Bank accountBank;
+    Card accountCard;
     ArrayList<Transfer> accountTransfers;
 
-    Account(String accountNumber, String accountType, float accountResources) {
+    Account(String accountNumber, String accountType, float accountResources,
+            Bank accountBank) {
         this.accountNumber = accountNumber;
         this.accountType = accountType;
         this.accountResources = accountResources;
         this.accountCreationDate = LocalDate.now();
         this.accountTransfers = new ArrayList<>();
+        this.accountBank = accountBank;
+        this.accountCard = null;
     }
 
     static Account creatingAccountMenu(Bank clientBank) throws IOException {
@@ -36,12 +41,12 @@ public class Account {
                 System.out.print("\nEnter initial Account resources: ");
                 float res = Main.scanner.nextFloat();
                 return new Account(accountNumberGenerator(clientBank),
-                        "Regular account", res);
+                        "Regular account", res, clientBank);
             case 2:
                 System.out.print("\nEnter initial Account resources: ");
                 float resSavings = Main.scanner.nextFloat();
                 return new SavingsAccount(accountNumberGenerator(clientBank),
-                        "Savings account",
+                        "Savings account", clientBank,
                         resSavings, clientBank.bankInterestRate);
             case 0:
                 return null;
@@ -55,7 +60,7 @@ public class Account {
         do {
             individualAccNumber = Main.rand.nextLong(range) + 100000000;
         } while (!accountCheckNumber(individualAccNumber, clientBank));
-        clientBank.individualNumbers.add(individualAccNumber);
+        clientBank.individualClientNumbers.add(individualAccNumber);
         return ("PL"
                 + accountCheckDigitGenerator(Integer.toString(clientBank.bic)
                 + Long.toString(individualAccNumber))
@@ -65,14 +70,20 @@ public class Account {
     void accountDashboard() throws IOException {
         Main.clearScreen();
         System.out.println(Main.logo);
-        System.out.println(String.valueOf("\nAccount number: "
+        System.out.print(String.valueOf("\nAccount number: "
                 + this.accountNumber + "\nType: " + this.accountType
                 + "\nResources: " + this.accountResources + "$"
                 + "\nCreation date: " + this.accountCreationDate));
-        System.out.println("\nSelect:" +
+        if (!Objects.isNull(this.accountCard)){
+            System.out.print("\nAccount card number: " + this.accountCard.cardNumber);
+        }
+        System.out.print("\n\nSelect:" +
                 "\n1. Show transfers\n" +
-                "2. Export transfers\n" +
-                "0. Back");
+                "2. Export transfers\n");
+        if (Objects.isNull(this.accountCard)) {
+            System.out.println("3. Create a card for the account");
+        }
+        System.out.println("0. Back");
         System.out.print("\nchoice: ");
         int choice = Main.scanner.nextInt();
         Main.clearScreen();
@@ -100,16 +111,21 @@ public class Account {
                 Main.waitForUser();
                 accountDashboard();
                 break;
+            case 3:
+                this.accountCard = Card.creatingCardMenu(this.accountBank);
+                Main.waitForUser();
+                accountDashboard();
+                break;
             case 0:
                 break;
         }
     }
 
     static boolean accountCheckNumber(long accountGeneratedNumber, Bank clientBank) {
-        if (clientBank.individualNumbers.isEmpty()) {
+        if (clientBank.individualClientNumbers.isEmpty()) {
             return true;
         }
-        for (Long number : clientBank.individualNumbers) {
+        for (Long number : clientBank.individualClientNumbers) {
             if (accountGeneratedNumber == number) {
                 return false;
             }

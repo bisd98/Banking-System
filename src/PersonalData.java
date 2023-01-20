@@ -22,17 +22,17 @@ public class PersonalData {
     static PersonalData personalDataForm() {
         Main.clearScreen();
         System.out.println(Main.logo);
-        System.out.println("\nEnter your name: ");
+        System.out.print("\nEnter your name: ");
         String userName = Main.scanner.next();
-        System.out.println("Enter your surname: ");
+        System.out.print("\nEnter your surname: ");
         String userSurname = Main.scanner.next();
-        System.out.println("Enter your Personal ID Number: ");
+        System.out.print("\nEnter your Personal ID Number: ");
         Long userPersonalID = Main.scanner.nextLong();
-        System.out.println("Enter your date of birth (yyyy-MM-d): ");
+        System.out.print("\nEnter your date of birth (yyyy-MM-d): ");
         LocalDate userBirthDate = LocalDate.parse(Main.scanner.next());
-        System.out.println("Enter your email address: ");
+        System.out.print("\nEnter your email address: ");
         String userEmail = Main.scanner.next();
-        System.out.println("Enter your phone number: ");
+        System.out.print("\nEnter your phone number: ");
         Long userPhone = Main.scanner.nextLong();
         return new PersonalData(userName, userSurname, userPersonalID,
                 userBirthDate, userEmail, userPhone);

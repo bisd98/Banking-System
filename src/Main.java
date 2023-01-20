@@ -43,7 +43,6 @@ public class Main {
                         "1. Bank menu\n" +
                         "2. Client menu\n" +
                         "0. Exit\n");
-
         System.out.print("choice: ");
         int choice = scanner.nextInt();
 
@@ -82,7 +81,7 @@ public class Main {
                 }
                 System.out.println("\nSelect a bank: ");
                 for (int counter = 0; counter < banks.size(); counter++) {
-                    System.out.println(String.valueOf(counter + 1) + ". " + banks.get(counter).getBankName());
+                    System.out.println(counter + 1 + ". " + banks.get(counter).getBankName());
                 }
                 System.out.print("\nchoice: ");
                 int choiceBank = scanner.nextInt();
@@ -130,7 +129,7 @@ public class Main {
                 }
                 System.out.println("\nSelect your bank: ");
                 for (int counter = 0; counter < banks.size(); counter++) {
-                    System.out.println(String.valueOf(counter + 1) + ". " + banks.get(counter).getBankName());
+                    System.out.println(counter + 1 + ". " + banks.get(counter).getBankName());
                 }
                 System.out.print("\nchoice: ");
                 int choiceBank = scanner.nextInt();
@@ -150,12 +149,15 @@ public class Main {
                 System.out.println("There is no customer with this ID in this bank");
                 waitForUser();
                 clientMenu();
+                break;
             case 2:
                 Client.creatingClientMenu();
                 waitForUser();
                 clientMenu();
+                break;
             case 3:
                 menu();
+                break;
             case 0:
                 System.exit(1);
         }

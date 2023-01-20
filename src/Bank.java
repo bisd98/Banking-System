@@ -12,7 +12,8 @@ public class Bank {
 
     float bankInterestRate;
     ArrayList<Client> clients;
-    ArrayList<Long> individualNumbers;
+    ArrayList<Long> individualClientNumbers;
+    ArrayList<Integer> individualCardNumbers;
 
     Bank(String bankName, float bankResources, float bankInterestRate) {
 
@@ -22,7 +23,8 @@ public class Bank {
         this.bankCreationDate = LocalDate.now();
         this.clients = new ArrayList<>();
         this.bic = setBIC();
-        this.individualNumbers = new ArrayList<>();
+        this.individualClientNumbers = new ArrayList<>();
+        this.individualCardNumbers = new ArrayList<>();
     }
 
     static void creatingBankMenu() {
@@ -75,7 +77,7 @@ public class Bank {
                 for (int counter = 0; counter < this.clients.size(); counter++){
                     System.out.println(String.valueOf(counter + 1) + ". Client ID: "
                             + this.clients.get(counter).clientID
-                            + ", Name: " + this.clients.get(counter).clientPersonalData.name
+                            + "\n   Name: " + this.clients.get(counter).clientPersonalData.name
                             + " " + this.clients.get(counter).clientPersonalData.surname);
                 }
                 Main.waitForUser();
@@ -153,9 +155,9 @@ public class Bank {
     }
 
     boolean logInToBank() throws IOException {
-        System.out.print("\nEnter owner login:");
+        System.out.print("\nEnter owner login: ");
         String inLogin = Main.scanner.next();
-        System.out.print("Enter password:");
+        System.out.print("Enter password: ");
         String inPassword = Main.scanner.next();
         if (!Objects.equals(inLogin, this.ownerLogin)) {
             System.out.println("\nLogin incorrect!");
@@ -176,9 +178,9 @@ public class Bank {
     }
 
     void setOwner() {
-        System.out.println("Set owner login: ");
+        System.out.print("\nSet owner login: ");
         String login = Main.scanner.next();
-        System.out.println("Set owner password: ");
+        System.out.print("\nSet owner password: ");
         String password = Main.scanner.next();
         this.ownerLogin = login;
         this.ownerPassword = password;
