@@ -83,16 +83,20 @@ public class Client {
 
     void showClientAccounts() throws IOException {
         if (this.clientBankAccounts.size() == 0) {
-            System.out.println("No bank accounts yet");
+            System.out.println("\nNo bank accounts yet");
             Main.waitForUser();
             clientDashboard();
         }
         for (int counter = 0; counter < this.clientBankAccounts.size(); counter++) {
-            System.out.println(String.valueOf(counter + 1) + ". Account number: "
+            System.out.println("\n" + String.valueOf(counter + 1) + ". Account number: "
                     + this.clientBankAccounts.get(counter).accountNumber
                     + "\nType: " + this.clientBankAccounts.get(counter).accountType
                     + "\nResources: " + this.clientBankAccounts.get(counter).accountResources
                     + "$");
+                    if (this.clientBankAccounts.get(counter) instanceof SavingsAccount){
+                        System.out.println("Monthly interest - "
+                                + clientBank.bankInterestRate * 100 + "%");
+                    }
         }
     }
 
@@ -117,9 +121,10 @@ public class Client {
 
         switch (choice) {
             case 1:
+                while (choice!=0){
                 Main.clearScreen();
                 System.out.println(Main.logo);
-                System.out.println("\nYour bank accounts :\n");
+                System.out.println("\nYour bank accounts :");
                 showClientAccounts();
                 System.out.println("\n0. Back");
                 System.out.print("\nchoice: ");
@@ -127,22 +132,26 @@ public class Client {
                 if (choice == 0){
                     clientDashboard();
                 }
-                this.clientBankAccounts.get(choice - 1).accountDashboard();
+                this.clientBankAccounts.get(choice - 1).accountDashboard();}
                 clientDashboard();
             case 2:
                 Account newAccount = Account.creatingAccountMenu(this.clientBank);
                 if (Objects.isNull(newAccount)) {
                     System.out.println("No new bank account opened");
                 } else {
+                    if(newAccount instanceof SavingsAccount){
+                        ((SavingsAccount) newAccount).increaseAccountResources();
+                    }
                     this.clientBankAccounts.add(newAccount);
                     System.out.println("\nBank account successfully opened");
                 }
                 Main.waitForUser();
                 clientDashboard();
+                break;
             case 3:
                 Main.clearScreen();
                 System.out.println(Main.logo);
-                System.out.println("\nSelect the bank account from which you want to make the transfer:\n");
+                System.out.println("\nSelect the bank account from which you want to make the transfer:");
                 showClientAccounts();
                 System.out.print("\nchoice: ");
                 choice = Main.scanner.nextInt();
@@ -153,16 +162,20 @@ public class Client {
                 }
                 Main.waitForUser();
                 clientDashboard();
+                break;
             case 4:
                 System.out.println("coming soon...");
                 Main.waitForUser();
                 clientDashboard();
+                break;
             case 5:
                 if (this.clientPersonalData.managePersonalData()) {
                     clientDashboard();
                 }
+                break;
             case 6:
                 Main.clientMenu();
+                break;
             case 0:
                 System.exit(1);
         }

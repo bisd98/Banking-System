@@ -23,8 +23,9 @@ public class Account {
         Main.clearScreen();
         System.out.println(Main.logo);
         System.out.println("\nSelect a new account type:\n" +
-                "\n1. Regular account\n" +
-                "2. Savings account\n" +
+                "1. Regular account\n" +
+                "2. Savings account (monthly interest - "
+                + clientBank.bankInterestRate * 100 + "%)\n" +
                 "0. Back");
         System.out.print("\nchoice: ");
         int choice = Main.scanner.nextInt();
@@ -37,9 +38,11 @@ public class Account {
                 return new Account(accountNumberGenerator(clientBank),
                         "Regular account", res);
             case 2:
-                System.out.println("coming soon...");
-                Main.waitForUser();
-                return null;
+                System.out.print("\nEnter initial Account resources: ");
+                float resSavings = Main.scanner.nextFloat();
+                return new SavingsAccount(accountNumberGenerator(clientBank),
+                        "Savings account",
+                        resSavings, clientBank.bankInterestRate);
             case 0:
                 return null;
         }
@@ -80,6 +83,7 @@ public class Account {
                     System.out.println("\nThere are no transfers yet");
                     Main.waitForUser();
                     accountDashboard();
+                    break;
                 }
                 for (Transfer anyTransfer : this.accountTransfers) {
                     System.out.println("\nTransfer date: " + anyTransfer.transferDate
@@ -90,6 +94,7 @@ public class Account {
                 }
                 Main.waitForUser();
                 accountDashboard();
+                break;
             case 2:
                 System.out.println("coming soon...");
                 Main.waitForUser();

@@ -9,13 +9,16 @@ public class Bank {
     float bankResources = 0;
     String ownerLogin, ownerPassword;
     int bic;
+
+    float bankInterestRate;
     ArrayList<Client> clients;
     ArrayList<Long> individualNumbers;
 
-    Bank(String bankName, float bankResources) {
+    Bank(String bankName, float bankResources, float bankInterestRate) {
 
         this.bankName = bankName;
         this.bankResources = bankResources;
+        this.bankInterestRate = bankInterestRate;
         this.bankCreationDate = LocalDate.now();
         this.clients = new ArrayList<>();
         this.bic = setBIC();
@@ -23,13 +26,15 @@ public class Bank {
     }
 
     static void creatingBankMenu() {
-        System.out.println("\nEnter your Bank name: ");
+        System.out.print("\nEnter your Bank name: ");
         String name = "";
         Main.scanner.nextLine();
         name += Main.scanner.nextLine();
-        System.out.println("Enter initial Bank resources: ");
+        System.out.print("Enter initial Bank resources: ");
         float res = Main.scanner.nextFloat();
-        Main.banks.add(new Bank(name, res));
+        System.out.print("Enter Bank interest rate in percents: ");
+        float interest = Main.scanner.nextFloat()/100;
+        Main.banks.add(new Bank(name, res, interest));
         Main.banks.get(Main.banks.size() - 1).setOwner();
         System.out.println("The bank has been successfully created");
     }
@@ -56,11 +61,15 @@ public class Bank {
         switch (choice) {
             case 1:
                 manageBank();
+                break;
             case 2:
+                Main.clearScreen();
+                System.out.println(Main.logo);
                 if (this.clients.size() == 0){
                     System.out.println("\nNo clients yet");
                     Main.waitForUser();
                     bankDashboard();
+                    break;
                 }
                 System.out.println("\nBank customer list :\n");
                 for (int counter = 0; counter < this.clients.size(); counter++){
@@ -71,16 +80,20 @@ public class Bank {
                 }
                 Main.waitForUser();
                 bankDashboard();
+                break;
             case 3:
                 System.out.println("coming soon...");
                 Main.waitForUser();
                 bankDashboard();
+                break;
             case 4:
                 System.out.println("coming soon...");
                 Main.waitForUser();
                 bankDashboard();
+                break;
             case 5:
                 Main.bankMenu();
+                break;
             case 0:
                 System.exit(1);
         }
@@ -106,39 +119,43 @@ public class Bank {
                 Main.clearScreen();
                 System.out.println(Main.logo);
                 System.out.println("\nName of your Bank: " + this.bankName);
-                System.out.println("\nEnter new Bank name: ");
+                System.out.print("\nEnter new Bank name: ");
                 String name = Main.scanner.next();
                 name += Main.scanner.nextLine();
                 setBankName(name);
                 System.out.println("Bank name successfully changed");
                 Main.waitForUser();
                 manageBank();
+                break;
             case 2:
                 Main.clearScreen();
                 System.out.println(Main.logo);
                 System.out.println("Owner login: " + this.ownerLogin);
-                System.out.println("\nEnter new password: ");
+                System.out.print("\nEnter new password: ");
                 setPassword(Main.scanner.next());
                 System.out.println("\nPassword successfully changed");
                 Main.waitForUser();
                 manageBank();
+                break;
             case 3:
                 Main.clearScreen();
                 System.out.println(Main.logo);
                 System.out.println("coming soon...");
                 Main.waitForUser();
                 manageBank();
+                break;
             case 4:
                 bankDashboard();
+                break;
             case 0:
                 System.exit(1);
         }
     }
 
     boolean logInToBank() throws IOException {
-        System.out.println("\nEnter owner login:");
+        System.out.print("\nEnter owner login:");
         String inLogin = Main.scanner.next();
-        System.out.println("Enter password:");
+        System.out.print("Enter password:");
         String inPassword = Main.scanner.next();
         if (!Objects.equals(inLogin, this.ownerLogin)) {
             System.out.println("\nLogin incorrect!");

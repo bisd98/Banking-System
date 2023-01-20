@@ -67,6 +67,7 @@ public class PersonalData {
                 System.out.println("\nEmail address has been successfully changed");
                 Main.waitForUser();
                 managePersonalData();
+                break;
             case 2:
                 Main.clearScreen();
                 System.out.println(Main.logo);
@@ -76,6 +77,7 @@ public class PersonalData {
                 System.out.println("\nPhone number has been successfully changed");
                 Main.waitForUser();
                 managePersonalData();
+                break;
             case 3:
                 return true;
             case 0:

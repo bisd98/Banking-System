@@ -22,7 +22,7 @@ public class Main {
     }
 
     static void testCode() {
-        Bank testBank = new Bank("Test Bank", 1000);
+        Bank testBank = new Bank("Test Bank", 1000, 0.03F);
         testBank.ownerLogin = "admin";
         testBank.ownerPassword = "admin";
         banks.add(testBank);
