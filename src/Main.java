@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Random;
@@ -13,6 +14,7 @@ public class Main {
             "                            /___/      /___/                   \n" +
             "_______________________________________________________________";
     static final Scanner scanner = new Scanner(System.in);
+    static DecimalFormat df = new DecimalFormat("0.00");
     static Random rand = new Random();
     static ArrayList<Bank> banks = new ArrayList<>();
 
@@ -22,7 +24,8 @@ public class Main {
     }
 
     static void testCode() {
-        Bank testBank = new Bank("Test Bank", 1000, 0.03F);
+        Bank testBank = new Bank("Test Bank", 1000000000,
+                0.003F, 0.07F);
         testBank.ownerLogin = "admin";
         testBank.ownerPassword = "admin";
         banks.add(testBank);
@@ -47,13 +50,12 @@ public class Main {
         int choice = scanner.nextInt();
 
         switch (choice) {
-            case 1:
-                bankMenu();
-            case 2:
-                clientMenu();
-            case 0:
+            case 1 -> bankMenu();
+            case 2 -> clientMenu();
+            case 0 -> {
                 clearScreen();
                 System.exit(1);
+            }
         }
     }
 
@@ -85,21 +87,20 @@ public class Main {
                 }
                 System.out.print("\nchoice: ");
                 int choiceBank = scanner.nextInt();
-                clearScreen();
-                System.out.println(logo);
                 if (banks.get(choiceBank - 1).logInToBank()) {
                     banks.get(choiceBank - 1).bankDashboard();
                 } else {
                     bankMenu();
                 }
+                break;
             case 2:
-                clearScreen();
-                System.out.println(logo);
                 Bank.creatingBankMenu();
                 waitForUser();
                 bankMenu();
+                break;
             case 3:
                 menu();
+                break;
             case 0:
                 System.exit(1);
         }
@@ -117,9 +118,8 @@ public class Main {
 
         System.out.print("choice: ");
         int choice = scanner.nextInt();
-
         switch (choice) {
-            case 1:
+            case 1 -> {
                 clearScreen();
                 System.out.println(logo);
                 if (banks.size() == 0) {
@@ -149,17 +149,14 @@ public class Main {
                 System.out.println("There is no customer with this ID in this bank");
                 waitForUser();
                 clientMenu();
-                break;
-            case 2:
+            }
+            case 2 -> {
                 Client.creatingClientMenu();
                 waitForUser();
                 clientMenu();
-                break;
-            case 3:
-                menu();
-                break;
-            case 0:
-                System.exit(1);
+            }
+            case 3 -> menu();
+            case 0 -> System.exit(1);
         }
     }
 

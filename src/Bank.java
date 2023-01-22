@@ -6,20 +6,21 @@ import java.util.Objects;
 public class Bank {
     String bankName;
     LocalDate bankCreationDate;
-    float bankResources = 0;
+    float bankResources;
     String ownerLogin, ownerPassword;
     int bic;
-
     float bankInterestRate;
+    float bankCreditInterestRate;
     ArrayList<Client> clients;
     ArrayList<Long> individualClientNumbers;
     ArrayList<Integer> individualCardNumbers;
 
-    Bank(String bankName, float bankResources, float bankInterestRate) {
+    Bank(String bankName, float bankResources, float bankInterestRate, float bankCreditInterestRate) {
 
         this.bankName = bankName;
         this.bankResources = bankResources;
         this.bankInterestRate = bankInterestRate;
+        this.bankCreditInterestRate = bankCreditInterestRate;
         this.bankCreationDate = LocalDate.now();
         this.clients = new ArrayList<>();
         this.bic = setBIC();
@@ -35,8 +36,10 @@ public class Bank {
         System.out.print("Enter initial Bank resources: ");
         float res = Main.scanner.nextFloat();
         System.out.print("Enter Bank interest rate in percents: ");
-        float interest = Main.scanner.nextFloat()/100;
-        Main.banks.add(new Bank(name, res, interest));
+        float interest = Main.scanner.nextFloat() / 100;
+        System.out.print("Enter Bank credit interest rate in percents: ");
+        float creditInterest = Main.scanner.nextFloat() / 100;
+        Main.banks.add(new Bank(name, res, interest, creditInterest));
         Main.banks.get(Main.banks.size() - 1).setOwner();
         System.out.println("The bank has been successfully created");
     }
@@ -46,7 +49,8 @@ public class Bank {
         System.out.println(Main.logo);
         System.out.println("\nBank name: " + this.bankName);
         System.out.println("Creation date: " + this.bankCreationDate);
-        System.out.println("Bank resources: " + this.bankResources + '$');
+        System.out.println("Bank resources: " + Main.df.format(this.bankResources) + '$');
+        System.out.println("Bank interest rate: " + this.bankInterestRate * 100 + '%');
         System.out.println("Clients: " + this.clients.size());
         System.out.println(
                 "\nSelect:\n" +
@@ -61,43 +65,38 @@ public class Bank {
         int choice = Main.scanner.nextInt();
 
         switch (choice) {
-            case 1:
-                manageBank();
-                break;
-            case 2:
+            case 1 -> manageBank();
+            case 2 -> {
                 Main.clearScreen();
                 System.out.println(Main.logo);
-                if (this.clients.size() == 0){
+                if (this.clients.size() == 0) {
                     System.out.println("\nNo clients yet");
                     Main.waitForUser();
                     bankDashboard();
                     break;
                 }
                 System.out.println("\nBank customer list :\n");
-                for (int counter = 0; counter < this.clients.size(); counter++){
-                    System.out.println(String.valueOf(counter + 1) + ". Client ID: "
+                for (int counter = 0; counter < this.clients.size(); counter++) {
+                    System.out.println((counter + 1) + ". Client ID: "
                             + this.clients.get(counter).clientID
                             + "\n   Name: " + this.clients.get(counter).clientPersonalData.name
                             + " " + this.clients.get(counter).clientPersonalData.surname);
                 }
                 Main.waitForUser();
                 bankDashboard();
-                break;
-            case 3:
+            }
+            case 3 -> {
                 System.out.println("coming soon...");
                 Main.waitForUser();
                 bankDashboard();
-                break;
-            case 4:
+            }
+            case 4 -> {
                 System.out.println("coming soon...");
                 Main.waitForUser();
                 bankDashboard();
-                break;
-            case 5:
-                Main.bankMenu();
-                break;
-            case 0:
-                System.exit(1);
+            }
+            case 5 -> Main.bankMenu();
+            case 0 -> System.exit(1);
         }
 
     }
@@ -108,16 +107,17 @@ public class Bank {
         System.out.println(
                 "\nSelect:\n" +
                         "1. Rename your Bank\n" +
-                        "2. Change owner password\n" +
-                        "3. Delete Bank\n" +
-                        "4. Back\n" +
+                        "2. Change interest rate\n" +
+                        "3. Change credit interest rate\n" +
+                        "4. Change owner password\n" +
+                        "5. Back\n" +
                         "0. Exit\n");
 
         System.out.print("choice: ");
         int choice = Main.scanner.nextInt();
 
         switch (choice) {
-            case 1:
+            case 1 -> {
                 Main.clearScreen();
                 System.out.println(Main.logo);
                 System.out.println("\nName of your Bank: " + this.bankName);
@@ -128,29 +128,41 @@ public class Bank {
                 System.out.println("Bank name successfully changed");
                 Main.waitForUser();
                 manageBank();
-                break;
-            case 2:
+            }
+            case 2 -> {
                 Main.clearScreen();
                 System.out.println(Main.logo);
-                System.out.println("Owner login: " + this.ownerLogin);
+                System.out.println("\nCurrent interest rate: "
+                        + this.bankInterestRate * 100 + "%");
+                System.out.print("\nEnter new interest rate in percents: ");
+                setBankInterestRate(Main.scanner.nextFloat() / 100);
+                System.out.println("\nInterest rate successfully changed");
+                Main.waitForUser();
+                manageBank();
+            }
+            case 3 -> {
+                Main.clearScreen();
+                System.out.println(Main.logo);
+                System.out.println("\nCurrent credit interest rate: "
+                        + this.bankInterestRate * 100 + "%");
+                System.out.print("\nEnter new credit interest rate in percents: ");
+                setBankCreditInterestRate(Main.scanner.nextFloat() / 100);
+                System.out.println("\nCredit interest rate successfully changed");
+                Main.waitForUser();
+                manageBank();
+            }
+            case 4 -> {
+                Main.clearScreen();
+                System.out.println(Main.logo);
+                System.out.println("\nOwner login: " + this.ownerLogin);
                 System.out.print("\nEnter new password: ");
                 setPassword(Main.scanner.next());
                 System.out.println("\nPassword successfully changed");
                 Main.waitForUser();
                 manageBank();
-                break;
-            case 3:
-                Main.clearScreen();
-                System.out.println(Main.logo);
-                System.out.println("coming soon...");
-                Main.waitForUser();
-                manageBank();
-                break;
-            case 4:
-                bankDashboard();
-                break;
-            case 0:
-                System.exit(1);
+            }
+            case 5 -> bankDashboard();
+            case 0 -> System.exit(1);
         }
     }
 
@@ -180,7 +192,7 @@ public class Bank {
     void setOwner() {
         System.out.print("\nSet owner login: ");
         String login = Main.scanner.next();
-        System.out.print("\nSet owner password: ");
+        System.out.print("Set owner password: ");
         String password = Main.scanner.next();
         this.ownerLogin = login;
         this.ownerPassword = password;
@@ -192,6 +204,14 @@ public class Bank {
 
     void setPassword(String password) {
         this.ownerPassword = password;
+    }
+
+    void setBankInterestRate(Float interestRate) {
+        this.bankInterestRate = interestRate;
+    }
+
+    void setBankCreditInterestRate(float bankCreditInterestRate) {
+        this.bankCreditInterestRate = bankCreditInterestRate;
     }
 
     boolean checkBIC(int generatedBIC) {
@@ -206,7 +226,7 @@ public class Bank {
         return true;
     }
 
-    int setBIC(){
+    int setBIC() {
         int range = 99999999 - 10000000 + 1;
         int newBIC;
         do {

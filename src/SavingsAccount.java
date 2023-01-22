@@ -13,6 +13,7 @@ public class SavingsAccount extends Account{
     void increaseAccountResources(){
         ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         scheduler.scheduleAtFixedRate(() -> {
+            this.accountBank.bankResources -= this.accountResources * this.interestRate;
             this.accountResources += this.accountResources * this.interestRate;
         }, 0, 1, TimeUnit.MINUTES);
     }

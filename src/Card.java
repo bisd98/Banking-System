@@ -38,9 +38,9 @@ public class Card {
             cardNumberGenerated = Main.rand.nextInt(range) + 100000000;
         } while (!cardCheckNumber(cardNumberGenerated, clientBank));
         clientBank.individualCardNumbers.add(cardNumberGenerated);
-        String numberWithoutControlNr = Integer.toString(industryID)
+        String numberWithoutControlNr = industryID
                 + Integer.toString(clientBank.bic).substring(0, 5)
-                + Integer.toString(cardNumberGenerated);
+                + (cardNumberGenerated);
         return Long.parseLong(numberWithoutControlNr
                 + luhnAlgorithm(numberWithoutControlNr));
     }
@@ -74,5 +74,9 @@ public class Card {
             }
         }
         return true;
+    }
+
+    public void setCardPIN(int cardPIN) {
+        this.cardPIN = cardPIN;
     }
 }

@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.sql.SQLOutput;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -51,7 +52,7 @@ public class Client {
         }
         System.out.println("\nSelect a bank: ");
         for (int counter = 0; counter < Main.banks.size(); counter++) {
-            System.out.println(String.valueOf(counter + 1) + ". " + Main.banks.get(counter).getBankName());
+            System.out.println((counter + 1) + ". " + Main.banks.get(counter).getBankName());
         }
         System.out.print("\nchoice: ");
         int userChoiceBank = Main.scanner.nextInt();
@@ -63,7 +64,7 @@ public class Client {
         Main.clearScreen();
         System.out.println(Main.logo);
         System.out.println("\nYour client ID number: " + newID);
-        System.out.println("\nSet password for your account: ");
+        System.out.print("\nSet password for your account: ");
         Main.banks.get(userChoiceBank - 1).clients.get(Main.banks.get(userChoiceBank - 1).clients.size()
                 - 1).setClientPassword(Main.scanner.next());
         System.out.println("The account has been successfully created");
@@ -87,15 +88,18 @@ public class Client {
             clientDashboard();
         }
         for (int counter = 0; counter < this.clientBankAccounts.size(); counter++) {
-            System.out.println("\n" + String.valueOf(counter + 1) + ". Account number: "
+            System.out.println("\n" + (counter + 1) + ". Account number: "
                     + this.clientBankAccounts.get(counter).accountNumber
                     + "\n   Type: " + this.clientBankAccounts.get(counter).accountType
-                    + "\n   Resources: " + this.clientBankAccounts.get(counter).accountResources
+                    + "\n   Resources: " + Main.df.format(this.clientBankAccounts.get(counter).accountResources)
                     + "$");
-                    if (this.clientBankAccounts.get(counter) instanceof SavingsAccount){
-                        System.out.println("   Monthly interest - "
-                                + clientBank.bankInterestRate * 100 + "%");
-                    }
+            if (this.clientBankAccounts.get(counter) instanceof SavingsAccount) {
+                System.out.println("   Monthly interest - "
+                        + clientBank.bankInterestRate * 100 + "%");
+            } else if (Objects.equals(this.clientBankAccounts.get(counter).accountType, "Credit account")) {
+                System.out.println("   Credit interest rate - "
+                        + clientBank.bankCreditInterestRate * 100 + "%");
+            }
         }
     }
 
@@ -110,7 +114,7 @@ public class Client {
                         "1. Your accounts\n" +
                         "2. Create account\n" +
                         "3. Make a transfer\n" +
-                        "4. -(Take credit)-\n" +
+                        "4. Take credit\n" +
                         "5. Manage your personal data\n" +
                         "6. Log out\n" +
                         "0. Exit\n");
@@ -120,25 +124,26 @@ public class Client {
 
         switch (choice) {
             case 1:
-                while (choice!=0){
-                Main.clearScreen();
-                System.out.println(Main.logo);
-                System.out.println("\nYour bank accounts :");
-                showClientAccounts();
-                System.out.println("\n0. Back");
-                System.out.print("\nchoice: ");
-                choice = Main.scanner.nextInt();
-                if (choice == 0){
-                    clientDashboard();
+                while (true) {
+                    Main.clearScreen();
+                    System.out.println(Main.logo);
+                    System.out.println("\nYour bank accounts :");
+                    showClientAccounts();
+                    System.out.println("\n0. Back");
+                    System.out.print("\nchoice: ");
+                    choice = Main.scanner.nextInt();
+                    if (choice == 0) {
+                        break;
+                    }
+                    this.clientBankAccounts.get(choice - 1).accountDashboard();
                 }
-                this.clientBankAccounts.get(choice - 1).accountDashboard();}
                 clientDashboard();
             case 2:
                 Account newAccount = Account.creatingAccountMenu(this.clientBank);
                 if (Objects.isNull(newAccount)) {
                     System.out.println("No new bank account opened");
                 } else {
-                    if(newAccount instanceof SavingsAccount){
+                    if (newAccount instanceof SavingsAccount) {
                         ((SavingsAccount) newAccount).increaseAccountResources();
                     }
                     this.clientBankAccounts.add(newAccount);
@@ -148,22 +153,53 @@ public class Client {
                 clientDashboard();
                 break;
             case 3:
-                Main.clearScreen();
-                System.out.println(Main.logo);
-                System.out.println("\nSelect the bank account from which you want to make the transfer:");
-                showClientAccounts();
-                System.out.print("\nchoice: ");
-                choice = Main.scanner.nextInt();
-                if (Transfer.createTransferMenu(this.clientBankAccounts.get(choice - 1))){
+                while (true) {
+                    Main.clearScreen();
+                    System.out.println(Main.logo);
+                    System.out.println("\nSelect the bank account from which you want to make the transfer:");
+                    showClientAccounts();
+                    System.out.print("\nchoice: ");
+                    choice = Main.scanner.nextInt();
+                    if (Objects.equals(this.clientBankAccounts.get(choice - 1).accountType, "Credit account")) {
+                        System.out.println("It is not possible to make a transfer from a credit account");
+                        Main.waitForUser();
+                        continue;
+                    }
+                    break;
+                }
+                if (Transfer.createTransferMenu(this.clientBankAccounts.get(choice - 1))) {
                     System.out.println("The transfer was successful");
-                }else {
+                } else {
                     System.out.println("The transfer was unsuccessful");
                 }
                 Main.waitForUser();
                 clientDashboard();
                 break;
             case 4:
-                System.out.println("coming soon...");
+                Main.clearScreen();
+                System.out.println(Main.logo);
+                if (this.clientBankAccounts.isEmpty()) {
+                    System.out.println("\nNo bank accounts yet");
+                    Main.waitForUser();
+                    clientDashboard();
+                }
+                System.out.print("\nAvailable credit amount: "
+                        + Main.df.format(this.clientBank.bankResources)
+                        + "\n\nEnter the credit amount: ");
+                float creditAmount = Main.scanner.nextFloat();
+                Main.clearScreen();
+                System.out.println(Main.logo);
+                System.out.println("\nSelect the account to which the bank will transfer the funds:");
+                showClientAccounts();
+                System.out.print("\nchoice: ");
+                choice = Main.scanner.nextInt();
+                this.clientBank.bankResources -= creditAmount;
+                this.clientBankAccounts.get(choice - 1).accountResources += creditAmount;
+                this.clientBankAccounts.add(
+                        new Account(Account.accountNumberGenerator(this.clientBank), "Credit account",
+                                -(creditAmount + creditAmount * this.clientBank.bankCreditInterestRate),
+                                this.clientBank));
+                System.out.println("\nCredit was successfully granted");
                 Main.waitForUser();
                 clientDashboard();
                 break;

@@ -7,7 +7,7 @@ import java.util.Objects;
 public class Account {
     String accountNumber;
     String accountType;
-    float accountResources = 0;
+    float accountResources;
     LocalDate accountCreationDate;
     Bank accountBank;
     Card accountCard;
@@ -24,7 +24,7 @@ public class Account {
         this.accountCard = null;
     }
 
-    static Account creatingAccountMenu(Bank clientBank) throws IOException {
+    static Account creatingAccountMenu(Bank clientBank) {
         Main.clearScreen();
         System.out.println(Main.logo);
         System.out.println("\nSelect a new account type:\n" +
@@ -62,7 +62,7 @@ public class Account {
         } while (!accountCheckNumber(individualAccNumber, clientBank));
         clientBank.individualClientNumbers.add(individualAccNumber);
         return ("PL"
-                + accountCheckDigitGenerator(Integer.toString(clientBank.bic)
+                + accountCheckDigitGenerator((clientBank.bic)
                 + Long.toString(individualAccNumber))
                 + clientBank.bic + individualAccNumber);
     }
@@ -70,9 +70,9 @@ public class Account {
     void accountDashboard() throws IOException {
         Main.clearScreen();
         System.out.println(Main.logo);
-        System.out.print(String.valueOf("\nAccount number: "
+        System.out.print(("\nAccount number: "
                 + this.accountNumber + "\nType: " + this.accountType
-                + "\nResources: " + this.accountResources + "$"
+                + "\nResources: " + Main.df.format(this.accountResources) + "$"
                 + "\nCreation date: " + this.accountCreationDate));
         if (!Objects.isNull(this.accountCard)){
             System.out.print("\nAccount card number: " + this.accountCard.cardNumber);
@@ -80,8 +80,10 @@ public class Account {
         System.out.print("\n\nSelect:" +
                 "\n1. Show transfers\n" +
                 "2. Export transfers\n");
-        if (Objects.isNull(this.accountCard)) {
-            System.out.println("3. Create a card for the account");
+        if (Objects.isNull(this.accountCard) && !Objects.equals(this.accountType, "Credit account")) {
+            System.out.println("4. Create a card for the account");
+        }else if(!Objects.equals(this.accountType, "Credit account")){
+            System.out.println("4. Change card PIN");
         }
         System.out.println("0. Back");
         System.out.print("\nchoice: ");
@@ -100,7 +102,7 @@ public class Account {
                     System.out.println("\nTransfer date: " + anyTransfer.transferDate
                             + "\nTransfer sender: " + anyTransfer.transferSender
                             + "\nRecipient of the transfer: " + anyTransfer.transferRecipient
-                            + "\nResources: " + anyTransfer.transferAmount
+                            + "\nResources: " + Main.df.format(anyTransfer.transferAmount)
                             + "\nDescription: " + anyTransfer.transferDescription);
                 }
                 Main.waitForUser();
@@ -112,7 +114,14 @@ public class Account {
                 accountDashboard();
                 break;
             case 3:
-                this.accountCard = Card.creatingCardMenu(this.accountBank);
+                if (Objects.isNull(this.accountCard)) {
+                    this.accountCard = Card.creatingCardMenu(this.accountBank);
+                }else {
+                    System.out.print("\nCurrent card PIN: " + this.accountCard.cardPIN
+                    + "\n\nEnter a new card pin: ");
+                    this.accountCard.setCardPIN(Main.scanner.nextInt());
+                    System.out.println("Card pin changed successfully");
+                }
                 Main.waitForUser();
                 accountDashboard();
                 break;
@@ -136,7 +145,7 @@ public class Account {
     static String accountCheckDigitGenerator(String accountNumber) {
         int checkSum = calculateCheckSum(accountNumber);
         if (checkSum < 10) {
-            return "0" + Integer.toString(checkSum);
+            return "0" + checkSum;
         } else {
             return Integer.toString(checkSum);
         }

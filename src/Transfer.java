@@ -41,6 +41,24 @@ public class Transfer {
                     recipientAccount.accountNumber, desc, amount);
             newTransfer.resourcesTransfer(senderAccount, recipientAccount);
             senderAccount.accountTransfers.add(newTransfer);
+            recipientAccount.accountTransfers.add(newTransfer);
+            if (recipientAccount.accountType == "Credit account"){
+                if (recipientAccount.accountResources == 0){
+                    Objects.requireNonNull(checkRecipient(recipientAccount)).clientBankAccounts.
+                            remove(recipientAccount);
+                } else if (recipientAccount.accountResources > 0) {
+                    Transfer overpayReturn = new Transfer(recipientAccount.accountNumber,
+                            senderAccount.accountNumber, "Overpay return",
+                            recipientAccount.accountResources);
+                    overpayReturn.resourcesTransfer(recipientAccount, senderAccount);
+                    senderAccount.accountTransfers.add(overpayReturn);
+                    Objects.requireNonNull(checkRecipient(recipientAccount)).clientBankAccounts.
+                            remove(recipientAccount);
+                }else {
+                    System.out.println("\nRemaining to repay the credit: "
+                            + -(recipientAccount.accountResources) + "$");
+                }
+            }
         }
         return true;
     }
@@ -66,8 +84,25 @@ public class Transfer {
         return null;
     }
 
+    static Client checkRecipient(Account recipientAccount){
+        for (Bank anyBank : Main.banks){
+                for(Client anyClient : anyBank.clients){
+                    for(Account anyAccount : anyClient.clientBankAccounts){
+                        if(anyAccount.equals(recipientAccount)){
+                            return anyClient;
+                        }
+                    }
+                }
+            }
+        System.out.println("\nWrong client");
+        return null;
+    }
+
     void resourcesTransfer(Account sender, Account recipient){
         sender.accountResources -= this.transferAmount;
         recipient.accountResources += this.transferAmount;
+        if(Objects.equals(recipient.accountType, "Credit account")) {
+            recipient.accountBank.bankResources += this.transferAmount;
+        }
     }
 }
