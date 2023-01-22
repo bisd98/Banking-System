@@ -1,7 +1,7 @@
 import java.io.IOException;
-import java.sql.SQLOutput;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.InputMismatchException;
 import java.util.Objects;
 
 public class Client {
@@ -43,21 +43,35 @@ public class Client {
     }
 
     static void creatingClientMenu() throws IOException {
-        Main.clearScreen();
-        System.out.println(Main.logo);
         if (Main.banks.size() == 0) {
+            Main.clearScreen();
+            System.out.println(Main.logo);
             System.out.println("\nThere are no banks yet");
             Main.waitForUser();
             Main.clientMenu();
         }
-        System.out.println("\nSelect a bank: ");
-        for (int counter = 0; counter < Main.banks.size(); counter++) {
-            System.out.println((counter + 1) + ". " + Main.banks.get(counter).getBankName());
+        int userChoiceBank;
+        while (true) {
+            Main.clearScreen();
+            System.out.println(Main.logo);
+            System.out.println("\nSelect a bank: ");
+            for (int counter = 0; counter < Main.banks.size(); counter++) {
+                System.out.println((counter + 1) + ". " + Main.banks.get(counter).getBankName());
+            }
+            try {
+                System.out.print("\nchoice: ");
+                userChoiceBank = Main.scanner.nextInt();
+                Main.banks.get(userChoiceBank - 1);
+                break;
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid format, please try again");
+                Main.scanner.next();
+                Main.waitForUser();
+            } catch (IndexOutOfBoundsException e) {
+                System.out.println("Wrong choice, please try again");
+                Main.waitForUser();
+            }
         }
-        System.out.print("\nchoice: ");
-        int userChoiceBank = Main.scanner.nextInt();
-        Main.clearScreen();
-        System.out.println(Main.logo);
         int newID = clientIDGenerator(userChoiceBank);
         Main.banks.get(userChoiceBank - 1).clients.add(new Client(newID,
                 PersonalData.personalDataForm(), (userChoiceBank)));
@@ -118,26 +132,47 @@ public class Client {
                         "5. Manage your personal data\n" +
                         "6. Log out\n" +
                         "0. Exit\n");
-
-        System.out.print("choice: ");
-        int choice = Main.scanner.nextInt();
-
+        int choice;
+        while (true) {
+            try {
+                System.out.print("choice: ");
+                choice = Main.scanner.nextInt();
+                break;
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid format, please try again");
+                Main.scanner.next();
+                Main.waitForUser();
+                clientDashboard();
+            }
+        }
         switch (choice) {
             case 1:
+                int accountChoice;
                 while (true) {
-                    Main.clearScreen();
-                    System.out.println(Main.logo);
-                    System.out.println("\nYour bank accounts :");
-                    showClientAccounts();
-                    System.out.println("\n0. Back");
-                    System.out.print("\nchoice: ");
-                    choice = Main.scanner.nextInt();
-                    if (choice == 0) {
+                    try {
+                        Main.clearScreen();
+                        System.out.println(Main.logo);
+                        System.out.println("\nYour bank accounts :");
+                        showClientAccounts();
+                        System.out.println("\n0. Back");
+                        System.out.print("\nchoice: ");
+                        accountChoice = Main.scanner.nextInt();
+                        if (accountChoice == 0) {
+                            break;
+                        }
+                        this.clientBankAccounts.get(accountChoice - 1).accountDashboard();
                         break;
+                    } catch (IndexOutOfBoundsException e) {
+                        System.out.println("Wrong choice, please try again");
+                        Main.waitForUser();
+                    } catch (InputMismatchException e) {
+                        System.out.println("Invalid format, please try again");
+                        Main.scanner.next();
+                        Main.waitForUser();
                     }
-                    this.clientBankAccounts.get(choice - 1).accountDashboard();
                 }
                 clientDashboard();
+                break;
             case 2:
                 Account newAccount = Account.creatingAccountMenu(this.clientBank);
                 if (Objects.isNull(newAccount)) {
@@ -176,23 +211,54 @@ public class Client {
                 clientDashboard();
                 break;
             case 4:
-                Main.clearScreen();
-                System.out.println(Main.logo);
                 if (this.clientBankAccounts.isEmpty()) {
+                    Main.clearScreen();
+                    System.out.println(Main.logo);
                     System.out.println("\nNo bank accounts yet");
                     Main.waitForUser();
                     clientDashboard();
                 }
-                System.out.print("\nAvailable credit amount: "
-                        + Main.df.format(this.clientBank.bankResources)
-                        + "\n\nEnter the credit amount: ");
-                float creditAmount = Main.scanner.nextFloat();
-                Main.clearScreen();
-                System.out.println(Main.logo);
-                System.out.println("\nSelect the account to which the bank will transfer the funds:");
-                showClientAccounts();
-                System.out.print("\nchoice: ");
-                choice = Main.scanner.nextInt();
+                float creditAmount;
+                while (true){
+                    try {
+                        Main.clearScreen();
+                        System.out.println(Main.logo);
+                        System.out.print("\nAvailable credit amount: "
+                                + Main.df.format(this.clientBank.bankResources)
+                                + "\n\nEnter the credit amount: ");
+                        creditAmount = Main.scanner.nextFloat();
+                        if(creditAmount > this.clientBank.bankResources || creditAmount <= 0){
+                            throw new IllegalArgumentException();
+                        }
+                        break;
+                    }catch (IllegalArgumentException e) {
+                        System.out.println("Invalid amount, please try again");
+                        Main.waitForUser();
+                    } catch (InputMismatchException e) {
+                        System.out.println("Invalid format, please try again");
+                        Main.scanner.next();
+                        Main.waitForUser();
+                    }
+                }
+                while (true) {
+                    try {
+                        Main.clearScreen();
+                        System.out.println(Main.logo);
+                        System.out.println("\nSelect the account to which the bank will transfer the funds:");
+                        showClientAccounts();
+                        System.out.print("\nchoice: ");
+                        choice = Main.scanner.nextInt();
+                        this.clientBankAccounts.get(choice - 1);
+                        break;
+                    } catch (InputMismatchException e) {
+                        System.out.println("Invalid format, please try again");
+                        Main.scanner.next();
+                        Main.waitForUser();
+                    } catch (IndexOutOfBoundsException e) {
+                        System.out.println("Wrong choice, please try again");
+                        Main.waitForUser();
+                    }
+                }
                 this.clientBank.bankResources -= creditAmount;
                 this.clientBankAccounts.get(choice - 1).accountResources += creditAmount;
                 this.clientBankAccounts.add(
@@ -213,6 +279,11 @@ public class Client {
                 break;
             case 0:
                 System.exit(1);
+            default: {
+                System.out.println("Wrong choice, please try again");
+                Main.waitForUser();
+                clientDashboard();
+            }
         }
 
     }

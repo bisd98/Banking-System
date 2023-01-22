@@ -1,6 +1,7 @@
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.InputMismatchException;
 import java.util.Objects;
 
 public class Bank {
@@ -28,19 +29,32 @@ public class Bank {
         this.individualCardNumbers = new ArrayList<>();
     }
 
-    static void creatingBankMenu() {
-        System.out.print("\nEnter your Bank name: ");
-        String name = "";
-        Main.scanner.nextLine();
-        name += Main.scanner.nextLine();
-        System.out.print("Enter initial Bank resources: ");
-        float res = Main.scanner.nextFloat();
-        System.out.print("Enter Bank interest rate in percents: ");
-        float interest = Main.scanner.nextFloat() / 100;
-        System.out.print("Enter Bank credit interest rate in percents: ");
-        float creditInterest = Main.scanner.nextFloat() / 100;
-        Main.banks.add(new Bank(name, res, interest, creditInterest));
-        Main.banks.get(Main.banks.size() - 1).setOwner();
+    static void creatingBankMenu() throws IOException {
+        String name;
+        float res, interest, creditInterest;
+        while(true){
+        try {
+            name = "";
+            Main.clearScreen();
+            System.out.println(Main.logo);
+            System.out.print("\nEnter your Bank name: ");
+            Main.scanner.nextLine();
+            name += Main.scanner.nextLine();
+            System.out.print("Enter initial Bank resources: ");
+            res = Main.scanner.nextFloat();
+            System.out.print("Enter Bank interest rate in percents: ");
+            interest = Main.scanner.nextFloat() / 100;
+            System.out.print("Enter Bank credit interest rate in percents: ");
+            creditInterest = Main.scanner.nextFloat() / 100;
+            break;
+        } catch(InputMismatchException e){
+            System.out.println("Invalid format, please try again");
+            Main.scanner.next();
+            Main.waitForUser();
+        }}
+        Bank newBank = new Bank(name, res, interest, creditInterest);
+        Main.banks.add(newBank);
+        newBank.setOwner();
         System.out.println("The bank has been successfully created");
     }
 
@@ -51,6 +65,7 @@ public class Bank {
         System.out.println("Creation date: " + this.bankCreationDate);
         System.out.println("Bank resources: " + Main.df.format(this.bankResources) + '$');
         System.out.println("Bank interest rate: " + this.bankInterestRate * 100 + '%');
+        System.out.println("Bank credit interest rate: " + this.bankCreditInterestRate * 100 + '%');
         System.out.println("Clients: " + this.clients.size());
         System.out.println(
                 "\nSelect:\n" +
@@ -61,8 +76,19 @@ public class Bank {
                         "5. Log out\n" +
                         "0. Exit\n");
 
-        System.out.print("choice: ");
-        int choice = Main.scanner.nextInt();
+        int choice;
+        while (true) {
+            try {
+                System.out.print("choice: ");
+                choice = Main.scanner.nextInt();
+                break;
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid format, please try again");
+                Main.scanner.next();
+                Main.waitForUser();
+                bankDashboard();
+            }
+        }
 
         switch (choice) {
             case 1 -> manageBank();
@@ -97,6 +123,11 @@ public class Bank {
             }
             case 5 -> Main.bankMenu();
             case 0 -> System.exit(1);
+            default -> {
+                System.out.println("Wrong choice, please try again");
+                Main.waitForUser();
+                bankDashboard();
+            }
         }
 
     }
@@ -113,8 +144,19 @@ public class Bank {
                         "5. Back\n" +
                         "0. Exit\n");
 
-        System.out.print("choice: ");
-        int choice = Main.scanner.nextInt();
+        int choice;
+        while (true) {
+            try {
+                System.out.print("choice: ");
+                choice = Main.scanner.nextInt();
+                break;
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid format, please try again");
+                Main.scanner.next();
+                Main.waitForUser();
+                manageBank();
+            }
+        }
 
         switch (choice) {
             case 1 -> {
@@ -130,23 +172,40 @@ public class Bank {
                 manageBank();
             }
             case 2 -> {
+                while(true) {
+                    try {
                 Main.clearScreen();
                 System.out.println(Main.logo);
                 System.out.println("\nCurrent interest rate: "
                         + this.bankInterestRate * 100 + "%");
                 System.out.print("\nEnter new interest rate in percents: ");
                 setBankInterestRate(Main.scanner.nextFloat() / 100);
+                        break;}catch (InputMismatchException e){
+                        System.out.println("Invalid format, please try again");
+                        Main.scanner.next();
+                        Main.waitForUser();
+                    }
+                }
                 System.out.println("\nInterest rate successfully changed");
                 Main.waitForUser();
                 manageBank();
             }
             case 3 -> {
-                Main.clearScreen();
-                System.out.println(Main.logo);
-                System.out.println("\nCurrent credit interest rate: "
-                        + this.bankInterestRate * 100 + "%");
-                System.out.print("\nEnter new credit interest rate in percents: ");
-                setBankCreditInterestRate(Main.scanner.nextFloat() / 100);
+                while(true) {
+                    try {
+                        Main.clearScreen();
+                        System.out.println(Main.logo);
+                        System.out.println("\nCurrent credit interest rate: "
+                                + this.bankCreditInterestRate * 100 + "%");
+                        System.out.print("\nEnter new credit interest rate in percents: ");
+                        setBankCreditInterestRate(Main.scanner.nextFloat() / 100);
+                        break;
+                    }catch (InputMismatchException e){
+                        System.out.println("Invalid format, please try again");
+                        Main.scanner.next();
+                        Main.waitForUser();
+                    }
+                }
                 System.out.println("\nCredit interest rate successfully changed");
                 Main.waitForUser();
                 manageBank();
@@ -163,6 +222,11 @@ public class Bank {
             }
             case 5 -> bankDashboard();
             case 0 -> System.exit(1);
+            default -> {
+                System.out.println("Wrong choice, please try again");
+                Main.waitForUser();
+                manageBank();
+            }
         }
     }
 

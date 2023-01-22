@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.InputMismatchException;
 import java.util.Random;
 import java.util.Scanner;
 
@@ -17,6 +18,7 @@ public class Main {
     static DecimalFormat df = new DecimalFormat("0.00");
     static Random rand = new Random();
     static ArrayList<Bank> banks = new ArrayList<>();
+
 
     public static void main(String[] args) throws IOException {
         testCode();
@@ -46,15 +48,30 @@ public class Main {
                         "1. Bank menu\n" +
                         "2. Client menu\n" +
                         "0. Exit\n");
-        System.out.print("choice: ");
-        int choice = scanner.nextInt();
-
+        int choice;
+        while (true) {
+            try {
+                System.out.print("choice: ");
+                choice = scanner.nextInt();
+                break;
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid format, please try again");
+                scanner.next();
+                waitForUser();
+                menu();
+            }
+        }
         switch (choice) {
             case 1 -> bankMenu();
             case 2 -> clientMenu();
             case 0 -> {
                 clearScreen();
                 System.exit(1);
+            }
+            default -> {
+                System.out.println("Wrong choice, please try again");
+                waitForUser();
+                menu();
             }
         }
     }
@@ -68,41 +85,72 @@ public class Main {
                         "2. Create a new Bank\n" +
                         "3. Back\n" +
                         "0. Exit\n");
-
-        System.out.print("choice: ");
-        int choice = scanner.nextInt();
+        int choice;
+        while (true) {
+            try {
+                System.out.print("choice: ");
+                choice = scanner.nextInt();
+                break;
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid format, please try again");
+                scanner.next();
+                waitForUser();
+                bankMenu();
+            }
+        }
 
         switch (choice) {
-            case 1:
-                clearScreen();
-                System.out.println(logo);
+            case 1 -> {
+
                 if (banks.size() == 0) {
+                    clearScreen();
+                    System.out.println(logo);
                     System.out.println("\nThere are no banks yet");
                     waitForUser();
                     bankMenu();
                 }
-                System.out.println("\nSelect a bank: ");
-                for (int counter = 0; counter < banks.size(); counter++) {
-                    System.out.println(counter + 1 + ". " + banks.get(counter).getBankName());
+                int choiceBank;
+                while (true) {
+                    clearScreen();
+                    System.out.println(logo);
+                    System.out.println("\nSelect a bank: ");
+                    for (int counter = 0; counter < banks.size(); counter++) {
+                        System.out.println(counter + 1 + ". " + banks.get(counter).getBankName());
+                    }
+                    try {
+                        System.out.print("\nchoice: ");
+                        choiceBank = scanner.nextInt();
+                        banks.get(choiceBank - 1);
+                        break;
+                    } catch (InputMismatchException e) {
+                        System.out.println("Invalid format, please try again");
+                        scanner.next();
+                        waitForUser();
+                    } catch (IndexOutOfBoundsException e) {
+                        System.out.println("Wrong choice, please try again");
+                        waitForUser();
+                    }
                 }
-                System.out.print("\nchoice: ");
-                int choiceBank = scanner.nextInt();
+                clearScreen();
+                System.out.println(logo);
                 if (banks.get(choiceBank - 1).logInToBank()) {
                     banks.get(choiceBank - 1).bankDashboard();
                 } else {
                     bankMenu();
                 }
-                break;
-            case 2:
+            }
+            case 2 -> {
                 Bank.creatingBankMenu();
                 waitForUser();
                 bankMenu();
-                break;
-            case 3:
-                menu();
-                break;
-            case 0:
-                System.exit(1);
+            }
+            case 3 -> menu();
+            case 0 -> System.exit(1);
+            default -> {
+                System.out.println("Wrong choice, please try again");
+                waitForUser();
+                bankMenu();
+            }
         }
     }
 
@@ -115,24 +163,50 @@ public class Main {
                         "2. Become a Bank customer\n" +
                         "3. Back\n" +
                         "0. Exit\n");
-
-        System.out.print("choice: ");
-        int choice = scanner.nextInt();
+        int choice;
+        while (true) {
+            try {
+                System.out.print("choice: ");
+                choice = scanner.nextInt();
+                break;
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid format, please try again");
+                scanner.next();
+                waitForUser();
+                clientMenu();
+            }
+        }
         switch (choice) {
             case 1 -> {
-                clearScreen();
-                System.out.println(logo);
                 if (banks.size() == 0) {
+                    clearScreen();
+                    System.out.println(logo);
                     System.out.println("\nThere are no banks yet");
                     waitForUser();
                     clientMenu();
                 }
-                System.out.println("\nSelect your bank: ");
-                for (int counter = 0; counter < banks.size(); counter++) {
-                    System.out.println(counter + 1 + ". " + banks.get(counter).getBankName());
+                int choiceBank;
+                while (true) {
+                    clearScreen();
+                    System.out.println(logo);
+                    System.out.println("\nSelect your bank: ");
+                    for (int counter = 0; counter < banks.size(); counter++) {
+                        System.out.println(counter + 1 + ". " + banks.get(counter).getBankName());
+                    }
+                    try {
+                        System.out.print("\nchoice: ");
+                        choiceBank = scanner.nextInt();
+                        banks.get(choiceBank - 1);
+                        break;
+                    } catch (InputMismatchException e) {
+                        System.out.println("Invalid format, please try again");
+                        scanner.next();
+                        waitForUser();
+                    } catch (IndexOutOfBoundsException e) {
+                        System.out.println("Wrong choice, please try again");
+                        waitForUser();
+                    }
                 }
-                System.out.print("\nchoice: ");
-                int choiceBank = scanner.nextInt();
                 clearScreen();
                 System.out.println(logo);
                 System.out.print("\nEnter client ID: ");
@@ -157,6 +231,11 @@ public class Main {
             }
             case 3 -> menu();
             case 0 -> System.exit(1);
+            default -> {
+                System.out.println("Wrong choice, please try again");
+                waitForUser();
+                clientMenu();
+            }
         }
     }
 

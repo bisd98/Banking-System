@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.InputMismatchException;
 import java.util.Objects;
 
 public class Account {
@@ -24,35 +25,88 @@ public class Account {
         this.accountCard = null;
     }
 
-    static Account creatingAccountMenu(Bank clientBank) {
-        Main.clearScreen();
-        System.out.println(Main.logo);
-        System.out.println("\nSelect a new account type:\n" +
-                "1. Regular account\n" +
-                "2. Savings account (monthly interest - "
-                + clientBank.bankInterestRate * 100 + "%)\n" +
-                "0. Back");
-        System.out.print("\nchoice: ");
-        int choice = Main.scanner.nextInt();
-        Main.clearScreen();
-        System.out.println(Main.logo);
+    static Account creatingAccountMenu(Bank clientBank) throws IOException {
+        int choice;
+        while (true) {
+            try {
+                Main.clearScreen();
+                System.out.println(Main.logo);
+                System.out.println("\nSelect a new account type:\n" +
+                        "1. Regular account\n" +
+                        "2. Savings account (monthly interest - "
+                        + clientBank.bankInterestRate * 100 + "%)\n" +
+                        "0. Back");
+                System.out.print("\nchoice: ");
+                choice = Main.scanner.nextInt();
+                break;
+            } catch (IllegalArgumentException e) {
+                System.out.println("Wrong choice, please try again");
+                Main.waitForUser();
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid format, please try again");
+                Main.scanner.next();
+                Main.waitForUser();
+            }
+        }
         switch (choice) {
             case 1:
-                System.out.print("\nEnter initial Account resources: ");
-                float res = Main.scanner.nextFloat();
+                float res;
+                while (true) {
+                    try {
+                        Main.clearScreen();
+                        System.out.println(Main.logo);
+                        System.out.print("\nEnter initial Account resources: ");
+                        res = Main.scanner.nextFloat();
+                        if (res < 0) {
+                            throw new IllegalArgumentException();
+                        }
+                        break;
+                    } catch (InputMismatchException e) {
+                        System.out.println("Invalid format, please try again");
+                        Main.scanner.next();
+                        Main.waitForUser();
+                    }
+                }
+
                 return new Account(accountNumberGenerator(clientBank),
                         "Regular account", res, clientBank);
             case 2:
-                System.out.print("\nEnter initial Account resources: ");
-                float resSavings = Main.scanner.nextFloat();
+                float resSavings;
+                while (true) {
+                    try {
+                        Main.clearScreen();
+                        System.out.println(Main.logo);
+                        System.out.print("\nEnter initial Account resources: ");
+                        resSavings = Main.scanner.nextFloat();
+                        if (resSavings < 0) {
+                            throw new IllegalArgumentException();
+                        }
+                        break;
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("Invalid amount, please try again");
+                        Main.waitForUser();
+                    } catch (InputMismatchException e) {
+                        System.out.println("Invalid format, please try again");
+                        Main.scanner.next();
+                        Main.waitForUser();
+                    }
+                }
                 return new SavingsAccount(accountNumberGenerator(clientBank),
                         "Savings account", clientBank,
                         resSavings, clientBank.bankInterestRate);
             case 0:
                 return null;
+            default: {
+                System.out.println("\nWrong choice, please try again");
+                Main.waitForUser();
+                creatingAccountMenu(clientBank);
+                break;
+            }
         }
         return null;
     }
+
+
 
     static String accountNumberGenerator(Bank clientBank) {
         long range = 9999999999999999L - 1000000000000000L + 1;
@@ -74,24 +128,44 @@ public class Account {
                 + this.accountNumber + "\nType: " + this.accountType
                 + "\nResources: " + Main.df.format(this.accountResources) + "$"
                 + "\nCreation date: " + this.accountCreationDate));
-        if (!Objects.isNull(this.accountCard)){
+        if (!Objects.isNull(this.accountCard)) {
             System.out.print("\nAccount card number: " + this.accountCard.cardNumber);
         }
         System.out.print("\n\nSelect:" +
                 "\n1. Show transfers\n" +
                 "2. Export transfers\n");
         if (Objects.isNull(this.accountCard) && !Objects.equals(this.accountType, "Credit account")) {
-            System.out.println("4. Create a card for the account");
-        }else if(!Objects.equals(this.accountType, "Credit account")){
-            System.out.println("4. Change card PIN");
+            System.out.println("3. Create a card for the account");
+        } else if (!Objects.equals(this.accountType, "Credit account")) {
+            System.out.println("3. Change card PIN");
         }
         System.out.println("0. Back");
-        System.out.print("\nchoice: ");
-        int choice = Main.scanner.nextInt();
-        Main.clearScreen();
-        System.out.println(Main.logo);
+        int choice;
+        while (true) {
+            try {
+                System.out.print("\nchoice: ");
+                choice = Main.scanner.nextInt();
+                if (choice == 3 && Objects.equals(this.accountType, "Credit account")) {
+                    System.out.println("Wrong choice, please try again");
+                    Main.waitForUser();
+                    accountDashboard();
+                }
+                break;
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid format, please try again");
+                Main.scanner.next();
+                Main.waitForUser();
+                accountDashboard();
+            }
+        }
+        if (Objects.equals(this.accountType, "Credit account") && choice == 3) {
+            choice = 9;
+        }
+
         switch (choice) {
             case 1:
+                Main.clearScreen();
+                System.out.println(Main.logo);
                 if (this.accountTransfers.size() == 0) {
                     System.out.println("\nThere are no transfers yet");
                     Main.waitForUser();
@@ -116,10 +190,30 @@ public class Account {
             case 3:
                 if (Objects.isNull(this.accountCard)) {
                     this.accountCard = Card.creatingCardMenu(this.accountBank);
-                }else {
-                    System.out.print("\nCurrent card PIN: " + this.accountCard.cardPIN
-                    + "\n\nEnter a new card pin: ");
-                    this.accountCard.setCardPIN(Main.scanner.nextInt());
+                } else {
+                    int newPIN;
+                    while (true) {
+                        try {
+                            Main.clearScreen();
+                            System.out.println(Main.logo);
+                            System.out.print("\nCurrent card PIN: " + this.accountCard.cardPIN
+                                    + "\n\nEnter a new card pin: ");
+                            newPIN = Main.scanner.nextInt();
+                            if (Integer.toString(newPIN).length() != 4) {
+                                throw new IllegalArgumentException();
+                            }
+                            break;
+                        } catch (IllegalArgumentException e) {
+                            System.out.println("Invalid PIN length, please try again");
+                            Main.waitForUser();
+                        } catch (InputMismatchException e) {
+                            System.out.println("Invalid format, please try again");
+                            Main.scanner.next();
+                            Main.waitForUser();
+                        }
+                    }
+
+                    this.accountCard.setCardPIN(newPIN);
                     System.out.println("Card pin changed successfully");
                 }
                 Main.waitForUser();
@@ -127,6 +221,11 @@ public class Account {
                 break;
             case 0:
                 break;
+            default: {
+                System.out.println("\nWrong choice, please try again");
+                Main.waitForUser();
+                accountDashboard();
+            }
         }
     }
 

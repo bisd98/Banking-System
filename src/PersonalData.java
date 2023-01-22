@@ -1,5 +1,7 @@
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+import java.util.InputMismatchException;
 
 public class PersonalData {
     String name;
@@ -19,19 +21,52 @@ public class PersonalData {
         this.phoneNumber = phoneNumber;
     }
 
-    static PersonalData personalDataForm() {
-        System.out.print("\nEnter your name: ");
-        String userName = Main.scanner.next();
-        System.out.print("Enter your surname: ");
-        String userSurname = Main.scanner.next();
-        System.out.print("Enter your Personal ID Number: ");
-        Long userPersonalID = Main.scanner.nextLong();
-        System.out.print("Enter your date of birth (yyyy-MM-d): ");
-        LocalDate userBirthDate = LocalDate.parse(Main.scanner.next());
-        System.out.print("Enter your email address: ");
-        String userEmail = Main.scanner.next();
-        System.out.print("Enter your phone number: ");
-        Long userPhone = Main.scanner.nextLong();
+    static PersonalData personalDataForm() throws IOException {
+        String userName, userSurname, userEmail;
+        Long userPersonalID, userPhone;
+        LocalDate userBirthDate;
+        while (true) {
+            try {
+                Main.clearScreen();
+                System.out.println(Main.logo);
+                System.out.print("\nEnter your name: ");
+                userName = Main.scanner.next();
+                if (!userName.matches("[a-zA-Z]+")) {
+                    throw new IllegalArgumentException();
+                }
+                System.out.print("Enter your surname: ");
+                userSurname = Main.scanner.next();
+                if (!userSurname.matches("[a-zA-Z]+")) {
+                    throw new IllegalArgumentException();
+                }
+                System.out.print("Enter your Personal ID Number: ");
+                userPersonalID = Main.scanner.nextLong();
+                if (Long.toString(userPersonalID).length() != 11) {
+                    throw new IllegalArgumentException();
+                }
+                System.out.print("Enter your date of birth (yyyy-MM-d): ");
+                userBirthDate = LocalDate.parse(Main.scanner.next());
+                System.out.print("Enter your email address: ");
+                userEmail = Main.scanner.next();
+                if (!userEmail.matches("^[\\w!#$%&'*+/=?`{|}~^-]" +
+                        "+(?:\\.[\\w!#$%&'*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$")) {
+                    throw new IllegalArgumentException();
+                }
+                System.out.print("Enter your phone number: ");
+                userPhone = Main.scanner.nextLong();
+                if (Long.toString(userPhone).length() != 9) {
+                    throw new IllegalArgumentException();
+                }
+                break;
+            } catch (IllegalArgumentException | DateTimeParseException e) {
+                System.out.println("Invalid format, please try again");
+                Main.waitForUser();
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid format, please try again");
+                Main.scanner.next();
+                Main.waitForUser();
+            }
+        }
         return new PersonalData(userName, userSurname, userPersonalID,
                 userBirthDate, userEmail, userPhone);
     }
@@ -52,34 +87,80 @@ public class PersonalData {
                         "3. Back\n" +
                         "0. Exit\n");
 
-        System.out.print("choice: ");
-        int choice = Main.scanner.nextInt();
-
+        int choice;
+        while (true) {
+            try {
+                System.out.print("choice: ");
+                choice = Main.scanner.nextInt();
+                break;
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid format, please try again");
+                Main.scanner.next();
+                Main.waitForUser();
+                managePersonalData();
+            }
+        }
         switch (choice) {
             case 1:
-                Main.clearScreen();
-                System.out.println(Main.logo);
-                System.out.println("\nYour email address: " + this.email);
-                System.out.print("\nEnter new email address: ");
-                setEmail(Main.scanner.next());
+                String newEmail;
+                while (true) {
+                    try {
+                        Main.clearScreen();
+                        System.out.println(Main.logo);
+                        System.out.println("\nYour email address: " + this.email);
+                        System.out.print("\nEnter new email address: ");
+                        newEmail = Main.scanner.next();
+                        if (!newEmail.matches("^[\\w!#$%&'*+/=?`{|}~^-]" +
+                                "+(?:\\.[\\w!#$%&'*+/=?`{|}~^-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,6}$")) {
+                            throw new IllegalArgumentException();
+                        }
+                        break;
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("Invalid format, please try again");
+                        Main.waitForUser();
+                    }
+                }
+                setEmail(newEmail);
                 System.out.println("\nEmail address has been successfully changed");
                 Main.waitForUser();
                 managePersonalData();
                 break;
             case 2:
-                Main.clearScreen();
-                System.out.println(Main.logo);
-                System.out.println("\nYour phone number: " + this.phoneNumber);
-                System.out.print("\nEnter new phone number: ");
-                setPhoneNumber(Main.scanner.nextLong());
+                long newPhone;
+                while (true) {
+                    try {
+                        Main.clearScreen();
+                        System.out.println(Main.logo);
+                        System.out.println("\nYour phone number: " + this.phoneNumber);
+                        System.out.print("\nEnter new phone number: ");
+                        newPhone = Main.scanner.nextLong();
+                        if (Long.toString(newPhone).length() != 9) {
+                            throw new IllegalArgumentException();
+                        }
+                        break;
+                    }catch (IllegalArgumentException e) {
+                        System.out.println("Invalid format, please try again");
+                        Main.waitForUser();
+                    }catch (InputMismatchException e){
+                        System.out.println("Invalid format, please try again");
+                        Main.scanner.next();
+                        Main.waitForUser();
+                    }
+                }
+                setPhoneNumber(newPhone);
                 System.out.println("\nPhone number has been successfully changed");
                 Main.waitForUser();
                 managePersonalData();
                 break;
             case 3:
-                return true;
+                break;
             case 0:
                 System.exit(1);
+            default: {
+                System.out.println("Wrong choice, please try again");
+                Main.waitForUser();
+                managePersonalData();
+            }
         }
         return true;
     }
