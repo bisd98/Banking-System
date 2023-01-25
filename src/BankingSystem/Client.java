@@ -1,3 +1,5 @@
+package BankingSystem;
+
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -13,36 +15,43 @@ public class Client {
     Bank clientBank;
     ArrayList<Account> clientBankAccounts;
 
-    Client(int clientID, PersonalData customerPersonalData, int customerBankIndex) {
+    static ArrayList<Integer> clientIDNumbers = new ArrayList<>();
+
+    Client(int clientID, PersonalData customerPersonalData, int customerBankIndex, LocalDate clientJoinDate) {
         this.clientID = clientID;
-        this.clientJoinDate = LocalDate.now();
+        this.clientJoinDate = Objects.requireNonNullElseGet(clientJoinDate, LocalDate::now);
         this.clientPersonalData = customerPersonalData;
-        this.clientBank = Main.banks.get(customerBankIndex - 1);
+        if (customerBankIndex == 0){
+            this.clientBank = null;
+        }else {
+            this.clientBank = Main.banks.get(customerBankIndex - 1);
+        }
         this.clientBankAccounts = new ArrayList<>();
     }
 
-    static int clientIDGenerator(int indexBank) {
+    static int clientIDGenerator() {
         int range = 999999999 - 100000000 + 1;
         int clientGeneratedID;
         do {
             clientGeneratedID = Main.rand.nextInt(range) + 100000000;
-        } while (!clientCheckID(clientGeneratedID, indexBank));
+        } while (!clientCheckID(clientGeneratedID));
+        clientIDNumbers.add(clientGeneratedID);
         return clientGeneratedID;
     }
 
-    static boolean clientCheckID(int clientGeneratedID, int indexBank) {
-        if (Main.banks.get(indexBank - 1).clients.isEmpty()) {
+    static boolean clientCheckID(int clientGeneratedID) {
+        if (clientIDNumbers.isEmpty()) {
             return true;
         }
-        for (Client client : Main.banks.get(indexBank - 1).clients) {
-            if (clientGeneratedID == client.clientID) {
+        for (int clientID : clientIDNumbers) {
+            if (clientGeneratedID == clientID) {
                 return false;
             }
         }
         return true;
     }
 
-    static void creatingClientMenu() throws IOException {
+    static void creatingClientMenu() throws IOException{
         if (Main.banks.size() == 0) {
             Main.clearScreen();
             System.out.println(Main.logo);
@@ -72,15 +81,18 @@ public class Client {
                 Main.waitForUser();
             }
         }
-        int newID = clientIDGenerator(userChoiceBank);
-        Main.banks.get(userChoiceBank - 1).clients.add(new Client(newID,
-                PersonalData.personalDataForm(), (userChoiceBank)));
+        Client newClient = new Client(clientIDGenerator(),
+                PersonalData.personalDataForm(), (userChoiceBank), null);
+        Main.banks.get(userChoiceBank - 1).clients.add(newClient);
         Main.clearScreen();
         System.out.println(Main.logo);
-        System.out.println("\nYour client ID number: " + newID);
+        System.out.println("\nYour client ID number: " + newClient.clientID);
         System.out.print("\nSet password for your account: ");
-        Main.banks.get(userChoiceBank - 1).clients.get(Main.banks.get(userChoiceBank - 1).clients.size()
-                - 1).setClientPassword(Main.scanner.next());
+        newClient.setClientPassword(Main.scanner.next());
+        Main.bankDataBase.insertClient(newClient.clientID, newClient.clientPersonalData.personalID,
+                newClient.clientPassword, java.sql.Date.valueOf(newClient.clientJoinDate),
+                newClient.clientBank.ownerID);
+
         System.out.println("The account has been successfully created");
     }
 
@@ -95,14 +107,14 @@ public class Client {
         return true;
     }
 
-    void showClientAccounts() throws IOException {
+    void showClientAccounts() throws IOException{
         if (this.clientBankAccounts.size() == 0) {
             System.out.println("\nNo bank accounts yet");
             Main.waitForUser();
             clientDashboard();
         }
         for (int counter = 0; counter < this.clientBankAccounts.size(); counter++) {
-            System.out.println("\n" + (counter + 1) + ". Account number: "
+            System.out.println("\n" + (counter + 1) + ". BankingSystem.Account number: "
                     + this.clientBankAccounts.get(counter).accountNumber
                     + "\n   Type: " + this.clientBankAccounts.get(counter).accountType
                     + "\n   Resources: " + Main.df.format(this.clientBankAccounts.get(counter).accountResources)
@@ -117,11 +129,11 @@ public class Client {
         }
     }
 
-    void clientDashboard() throws IOException {
+    void clientDashboard() throws IOException{
         Main.clearScreen();
         System.out.println(Main.logo);
-        System.out.println("\nBank name: " + this.clientBank.bankName);
-        System.out.println("Client ID: " + this.clientID);
+        System.out.println("\nBankingSystem.Bank name: " + this.clientBank.bankName);
+        System.out.println("BankingSystem.Client ID: " + this.clientID);
         System.out.println("Join date: " + this.clientJoinDate);
         System.out.println(
                 "\nSelect:\n" +
@@ -181,8 +193,11 @@ public class Client {
                     if (newAccount instanceof SavingsAccount) {
                         ((SavingsAccount) newAccount).increaseAccountResources();
                     }
+                    Main.bankDataBase.insertAccount(newAccount.accountNumber, this.clientID, this.clientBank.ownerID,
+                            newAccount.accountType, newAccount.accountResources,
+                            java.sql.Date.valueOf(newAccount.accountCreationDate), null);
                     this.clientBankAccounts.add(newAccount);
-                    System.out.println("\nBank account successfully opened");
+                    System.out.println("\nBankingSystem.Bank account successfully opened");
                 }
                 Main.waitForUser();
                 clientDashboard();
@@ -193,6 +208,7 @@ public class Client {
                     System.out.println(Main.logo);
                     System.out.println("\nSelect the bank account from which you want to make the transfer:");
                     showClientAccounts();
+
                     System.out.print("\nchoice: ");
                     choice = Main.scanner.nextInt();
                     if (Objects.equals(this.clientBankAccounts.get(choice - 1).accountType, "Credit account")) {
@@ -219,7 +235,7 @@ public class Client {
                     clientDashboard();
                 }
                 float creditAmount;
-                while (true){
+                while (true) {
                     try {
                         Main.clearScreen();
                         System.out.println(Main.logo);
@@ -227,11 +243,11 @@ public class Client {
                                 + Main.df.format(this.clientBank.bankResources)
                                 + "\n\nEnter the credit amount: ");
                         creditAmount = Main.scanner.nextFloat();
-                        if(creditAmount > this.clientBank.bankResources || creditAmount <= 0){
+                        if (creditAmount > this.clientBank.bankResources || creditAmount <= 0) {
                             throw new IllegalArgumentException();
                         }
                         break;
-                    }catch (IllegalArgumentException e) {
+                    } catch (IllegalArgumentException e) {
                         System.out.println("Invalid amount, please try again");
                         Main.waitForUser();
                     } catch (InputMismatchException e) {
@@ -264,7 +280,7 @@ public class Client {
                 this.clientBankAccounts.add(
                         new Account(Account.accountNumberGenerator(this.clientBank), "Credit account",
                                 -(creditAmount + creditAmount * this.clientBank.bankCreditInterestRate),
-                                this.clientBank));
+                                this.clientBank, null));
                 System.out.println("\nCredit was successfully granted");
                 Main.waitForUser();
                 clientDashboard();
@@ -291,4 +307,5 @@ public class Client {
     public void setClientPassword(String clientPassword) {
         this.clientPassword = clientPassword;
     }
+
 }

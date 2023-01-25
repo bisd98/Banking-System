@@ -1,9 +1,11 @@
+package BankingSystem;
+
 import java.io.IOException;
 import java.util.InputMismatchException;
 
 public class Card {
-    String cardType;
     String cardNumber;
+    String cardType;
     int cardPIN;
 
     Card(String cardType, String cardNumber, int cardPIN) {
@@ -72,6 +74,9 @@ public class Card {
         do {
             cardNumberGenerated = Main.rand.nextInt(range) + 100000000;
         } while (!cardCheckNumber(cardNumberGenerated, clientBank));
+
+        Main.bankDataBase.insertIndividualCardNumber(cardNumberGenerated, clientBank.ownerID);
+
         clientBank.individualCardNumbers.add(cardNumberGenerated);
         String numberWithoutControlNr = industryID
                 + Integer.toString(clientBank.bic).substring(0, 5)

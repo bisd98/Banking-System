@@ -1,18 +1,36 @@
+package BankingSystem;
+
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.InputMismatchException;
+import java.util.Objects;
 
 public class PersonalData {
     String name;
     String surname;
-    Long personalID;
+    String personalID;
     LocalDate dateOfBirth;
     String email;
-    Long phoneNumber;
+    int phoneNumber;
 
-    PersonalData(String name, String surname, Long personalID,
-                 LocalDate dateOfBirth, String email, Long phoneNumber) {
+    static ArrayList<String> personalIDNumbers = new ArrayList<>();
+
+    static boolean checkPersonalID(String enteredPersonalID){
+        if (personalIDNumbers.isEmpty()){
+            return true;
+        }
+        for (String personalID : personalIDNumbers){
+            if (Objects.equals(enteredPersonalID, personalID)){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    PersonalData(String name, String surname, String personalID,
+                 LocalDate dateOfBirth, String email, int phoneNumber) {
         this.name = name;
         this.surname = surname;
         this.personalID = personalID;
@@ -23,7 +41,8 @@ public class PersonalData {
 
     static PersonalData personalDataForm() throws IOException {
         String userName, userSurname, userEmail;
-        Long userPersonalID, userPhone;
+        String userPersonalID;
+        int userPhone;
         LocalDate userBirthDate;
         while (true) {
             try {
@@ -40,9 +59,14 @@ public class PersonalData {
                     throw new IllegalArgumentException();
                 }
                 System.out.print("Enter your Personal ID Number: ");
-                userPersonalID = Main.scanner.nextLong();
-                if (Long.toString(userPersonalID).length() != 11) {
+                userPersonalID = Main.scanner.next();
+                if (userPersonalID.length() != 11) {
                     throw new IllegalArgumentException();
+                } else if (!checkPersonalID(userPersonalID)) {
+                    System.out.println("Personal ID number found in the database\n\n" +
+                            "Personal data loaded...");
+                    Main.waitForUser();
+                    return Main.bankDataBase.selectPersonalData(userPersonalID);
                 }
                 System.out.print("Enter your date of birth (yyyy-MM-d): ");
                 userBirthDate = LocalDate.parse(Main.scanner.next());
@@ -53,7 +77,7 @@ public class PersonalData {
                     throw new IllegalArgumentException();
                 }
                 System.out.print("Enter your phone number: ");
-                userPhone = Main.scanner.nextLong();
+                userPhone = Main.scanner.nextInt();
                 if (Long.toString(userPhone).length() != 9) {
                     throw new IllegalArgumentException();
                 }
@@ -67,6 +91,9 @@ public class PersonalData {
                 Main.waitForUser();
             }
         }
+        personalIDNumbers.add(userPersonalID);
+        Main.bankDataBase.insertPersonalData(userPersonalID, userName,
+                userSurname, java.sql.Date.valueOf(userBirthDate), userEmail, userPhone);
         return new PersonalData(userName, userSurname, userPersonalID,
                 userBirthDate, userEmail, userPhone);
     }
@@ -121,20 +148,21 @@ public class PersonalData {
                     }
                 }
                 setEmail(newEmail);
+                Main.bankDataBase.changeClientEmail(this.personalID, newEmail);
                 System.out.println("\nEmail address has been successfully changed");
                 Main.waitForUser();
                 managePersonalData();
                 break;
             case 2:
-                long newPhone;
+                int newPhone;
                 while (true) {
                     try {
                         Main.clearScreen();
                         System.out.println(Main.logo);
                         System.out.println("\nYour phone number: " + this.phoneNumber);
                         System.out.print("\nEnter new phone number: ");
-                        newPhone = Main.scanner.nextLong();
-                        if (Long.toString(newPhone).length() != 9) {
+                        newPhone = Main.scanner.nextInt();
+                        if (Integer.toString(newPhone).length() != 9) {
                             throw new IllegalArgumentException();
                         }
                         break;
@@ -148,6 +176,7 @@ public class PersonalData {
                     }
                 }
                 setPhoneNumber(newPhone);
+                Main.bankDataBase.changeClientPhone(this.personalID, newPhone);
                 System.out.println("\nPhone number has been successfully changed");
                 Main.waitForUser();
                 managePersonalData();
@@ -169,7 +198,7 @@ public class PersonalData {
         this.email = email;
     }
 
-    public void setPhoneNumber(Long phoneNumber) {
+    public void setPhoneNumber(int phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
 }

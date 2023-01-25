@@ -1,3 +1,5 @@
+package BankingSystem;
+
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.InputMismatchException;
@@ -10,13 +12,14 @@ public class Transfer {
     float transferAmount;
     LocalDate transferDate;
 
-    Transfer(String transferSender, String transferRecipient,
-             String transferDescription, float transferAmount) {
+    Transfer(String transferSender, String transferRecipient, String transferDescription,
+             float transferAmount, LocalDate transferDate) {
         this.transferSender = transferSender;
         this.transferRecipient = transferRecipient;
         this.transferDescription = transferDescription;
         this.transferAmount = transferAmount;
-        this.transferDate = LocalDate.now();
+        this.transferDate = Objects.requireNonNullElseGet(transferDate, LocalDate::now);
+
     }
 
     static boolean createTransferMenu(Account senderAccount) throws IOException {
@@ -27,7 +30,7 @@ public class Transfer {
                 Main.clearScreen();
                 System.out.println(Main.logo);
                 System.out.println("\nAccount number: " + senderAccount.accountNumber
-                        + "\nResources: " + senderAccount.accountResources + "$");
+                        + "\nResources: " + Main.df.format(senderAccount.accountResources) + "$");
                 System.out.print("\nRecipient's bank account number: ");
                 recipient = Main.scanner.next();
                 if (!recipient.matches("^PL[0-9]{26}$")) {
@@ -65,8 +68,13 @@ public class Transfer {
             Main.scanner.nextLine();
             desc += Main.scanner.nextLine();
             Transfer newTransfer = new Transfer(senderAccount.accountNumber,
-                    recipientAccount.accountNumber, desc, amount);
+                    recipientAccount.accountNumber, desc, amount, null);
             newTransfer.resourcesTransfer(senderAccount, recipientAccount);
+
+            Main.bankDataBase.insertTransfer(newTransfer.transferSender, newTransfer.transferRecipient,
+                    newTransfer.transferDescription, newTransfer.transferAmount,
+                    java.sql.Date.valueOf(newTransfer.transferDate));
+
             senderAccount.accountTransfers.add(newTransfer);
             recipientAccount.accountTransfers.add(newTransfer);
             if (Objects.equals(recipientAccount.accountType, "Credit account")) {
@@ -76,8 +84,14 @@ public class Transfer {
                 } else if (recipientAccount.accountResources > 0) {
                     Transfer overpayReturn = new Transfer(recipientAccount.accountNumber,
                             senderAccount.accountNumber, "Overpay return",
-                            recipientAccount.accountResources);
+                            recipientAccount.accountResources, null);
                     overpayReturn.resourcesTransfer(recipientAccount, senderAccount);
+
+                    Main.bankDataBase.insertTransfer(overpayReturn.transferSender, overpayReturn.transferRecipient,
+                            overpayReturn.transferDescription, overpayReturn.transferAmount,
+                            java.sql.Date.valueOf(overpayReturn.transferDate));
+                    //WPROWADZENIE ZWROTU NADPŁATY DO BAZY DANYCH
+
                     senderAccount.accountTransfers.add(overpayReturn);
                     Objects.requireNonNull(checkRecipient(recipientAccount)).clientBankAccounts.
                             remove(recipientAccount);

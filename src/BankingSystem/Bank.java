@@ -1,3 +1,5 @@
+package BankingSystem;
+
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -8,23 +10,30 @@ public class Bank {
     String bankName;
     LocalDate bankCreationDate;
     float bankResources;
-    String ownerLogin, ownerPassword;
+    int ownerID;
+    String ownerPassword;
     int bic;
     float bankInterestRate;
     float bankCreditInterestRate;
     ArrayList<Client> clients;
     ArrayList<Long> individualClientNumbers;
     ArrayList<Integer> individualCardNumbers;
+    static ArrayList<Integer> ownerIDNumbers = new ArrayList<>();
 
-    Bank(String bankName, float bankResources, float bankInterestRate, float bankCreditInterestRate) {
+    Bank(String bankName, float bankResources, float bankInterestRate,
+         float bankCreditInterestRate, LocalDate bankCreationDate, int BIC) {
 
         this.bankName = bankName;
         this.bankResources = bankResources;
         this.bankInterestRate = bankInterestRate;
         this.bankCreditInterestRate = bankCreditInterestRate;
-        this.bankCreationDate = LocalDate.now();
+        this.bankCreationDate = Objects.requireNonNullElseGet(bankCreationDate, LocalDate::now);
         this.clients = new ArrayList<>();
-        this.bic = setBIC();
+        if (BIC == 0) {
+            this.bic = setBIC();
+        } else {
+            this.bic = BIC;
+        }
         this.individualClientNumbers = new ArrayList<>();
         this.individualCardNumbers = new ArrayList<>();
     }
@@ -32,29 +41,35 @@ public class Bank {
     static void creatingBankMenu() throws IOException {
         String name;
         float res, interest, creditInterest;
-        while(true){
-        try {
-            name = "";
-            Main.clearScreen();
-            System.out.println(Main.logo);
-            System.out.print("\nEnter your Bank name: ");
-            Main.scanner.nextLine();
-            name += Main.scanner.nextLine();
-            System.out.print("Enter initial Bank resources: ");
-            res = Main.scanner.nextFloat();
-            System.out.print("Enter Bank interest rate in percents: ");
-            interest = Main.scanner.nextFloat() / 100;
-            System.out.print("Enter Bank credit interest rate in percents: ");
-            creditInterest = Main.scanner.nextFloat() / 100;
-            break;
-        } catch(InputMismatchException e){
-            System.out.println("Invalid format, please try again");
-            Main.scanner.next();
-            Main.waitForUser();
-        }}
-        Bank newBank = new Bank(name, res, interest, creditInterest);
+        while (true) {
+            try {
+                name = "";
+                Main.clearScreen();
+                System.out.println(Main.logo);
+                System.out.print("\nEnter your Bank name: ");
+                Main.scanner.nextLine();
+                name += Main.scanner.nextLine();
+                System.out.print("Enter initial Bank resources: ");
+                res = Main.scanner.nextFloat();
+                System.out.print("Enter Bank interest rate in percents: ");
+                interest = Main.scanner.nextFloat() / 100;
+                System.out.print("Enter Bank credit interest rate in percents: ");
+                creditInterest = Main.scanner.nextFloat() / 100;
+                break;
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid format, please try again");
+                Main.scanner.next();
+                Main.waitForUser();
+            }
+        }
+        Bank newBank = new Bank(name, res, interest, creditInterest, null, 0);
         Main.banks.add(newBank);
+        Main.clearScreen();
+        System.out.println(Main.logo);
         newBank.setOwner();
+        Main.bankDataBase.insertBank(newBank.ownerID, newBank.bankName, java.sql.Date.valueOf(newBank.bankCreationDate),
+                newBank.bankResources, newBank.ownerPassword, newBank.bic, newBank.bankInterestRate,
+                newBank.bankCreditInterestRate);
         System.out.println("The bank has been successfully created");
     }
 
@@ -106,7 +121,7 @@ public class Bank {
                     System.out.println((counter + 1) + ". Client ID: "
                             + this.clients.get(counter).clientID
                             + "\n   Name: " + this.clients.get(counter).clientPersonalData.name
-                            + " " + this.clients.get(counter).clientPersonalData.surname);
+                            + " " + this.clients.get(counter).clientPersonalData.surname + "\n");
                 }
                 Main.waitForUser();
                 bankDashboard();
@@ -167,20 +182,24 @@ public class Bank {
                 String name = Main.scanner.next();
                 name += Main.scanner.nextLine();
                 setBankName(name);
+                Main.bankDataBase.changeBankName(this.ownerID, name);
                 System.out.println("Bank name successfully changed");
                 Main.waitForUser();
                 manageBank();
             }
             case 2 -> {
-                while(true) {
+                while (true) {
                     try {
-                Main.clearScreen();
-                System.out.println(Main.logo);
-                System.out.println("\nCurrent interest rate: "
-                        + this.bankInterestRate * 100 + "%");
-                System.out.print("\nEnter new interest rate in percents: ");
-                setBankInterestRate(Main.scanner.nextFloat() / 100);
-                        break;}catch (InputMismatchException e){
+                        Main.clearScreen();
+                        System.out.println(Main.logo);
+                        System.out.println("\nCurrent interest rate: "
+                                + this.bankInterestRate * 100 + "%");
+                        System.out.print("\nEnter new interest rate in percents: ");
+                        float newInterestRate = (Main.scanner.nextFloat() / 100);
+                        setBankInterestRate(newInterestRate);
+                        Main.bankDataBase.changeBankInterestRate(this.ownerID, newInterestRate);
+                        break;
+                    } catch (InputMismatchException e) {
                         System.out.println("Invalid format, please try again");
                         Main.scanner.next();
                         Main.waitForUser();
@@ -191,16 +210,18 @@ public class Bank {
                 manageBank();
             }
             case 3 -> {
-                while(true) {
+                while (true) {
                     try {
                         Main.clearScreen();
                         System.out.println(Main.logo);
                         System.out.println("\nCurrent credit interest rate: "
                                 + this.bankCreditInterestRate * 100 + "%");
                         System.out.print("\nEnter new credit interest rate in percents: ");
-                        setBankCreditInterestRate(Main.scanner.nextFloat() / 100);
+                        float newCreditInterestRate = (Main.scanner.nextFloat() / 100);
+                        setBankCreditInterestRate(newCreditInterestRate);
+                        Main.bankDataBase.changeBankCreditInterestRate(this.ownerID, newCreditInterestRate);
                         break;
-                    }catch (InputMismatchException e){
+                    } catch (InputMismatchException e) {
                         System.out.println("Invalid format, please try again");
                         Main.scanner.next();
                         Main.waitForUser();
@@ -213,9 +234,11 @@ public class Bank {
             case 4 -> {
                 Main.clearScreen();
                 System.out.println(Main.logo);
-                System.out.println("\nOwner login: " + this.ownerLogin);
+                System.out.println("\nOwner ID: " + this.ownerID);
                 System.out.print("\nEnter new password: ");
-                setPassword(Main.scanner.next());
+                String newPassword = Main.scanner.next();
+                setPassword(newPassword);
+                Main.bankDataBase.changeOwnerPassword(this.ownerID, newPassword);
                 System.out.println("\nPassword successfully changed");
                 Main.waitForUser();
                 manageBank();
@@ -232,10 +255,10 @@ public class Bank {
 
     boolean logInToBank() throws IOException {
         System.out.print("\nEnter owner login: ");
-        String inLogin = Main.scanner.next();
+        int inLogin = Main.scanner.nextInt();
         System.out.print("Enter password: ");
         String inPassword = Main.scanner.next();
-        if (!Objects.equals(inLogin, this.ownerLogin)) {
+        if (inLogin != this.ownerID) {
             System.out.println("\nLogin incorrect!");
             Main.waitForUser();
             return false;
@@ -254,12 +277,32 @@ public class Bank {
     }
 
     void setOwner() {
-        System.out.print("\nSet owner login: ");
-        String login = Main.scanner.next();
-        System.out.print("Set owner password: ");
-        String password = Main.scanner.next();
-        this.ownerLogin = login;
-        this.ownerPassword = password;
+        this.ownerID = ownerIDGenerator();
+        System.out.println("\nYour owner ID number: " + this.ownerID);
+        System.out.print("\nSet owner password: ");
+        this.ownerPassword = Main.scanner.next();
+    }
+
+    static int ownerIDGenerator() {
+        int range = 999999999 - 100000000 + 1;
+        int ownerGeneratedID;
+        do {
+            ownerGeneratedID = Main.rand.nextInt(range) + 100000000;
+        } while (!ownerCheckID(ownerGeneratedID));
+        ownerIDNumbers.add(ownerGeneratedID);
+        return ownerGeneratedID;
+    }
+
+    static boolean ownerCheckID(int ownerGeneratedID) {
+        if (ownerIDNumbers.isEmpty()) {
+            return true;
+        }
+        for (int ownerID : ownerIDNumbers) {
+            if (ownerGeneratedID == ownerID) {
+                return false;
+            }
+        }
+        return true;
     }
 
     void setBankName(String bankName) {

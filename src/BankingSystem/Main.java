@@ -1,6 +1,7 @@
+package BankingSystem;
+
 import java.io.IOException;
 import java.text.DecimalFormat;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Random;
@@ -18,29 +19,15 @@ public class Main {
     static DecimalFormat df = new DecimalFormat("0.00");
     static Random rand = new Random();
     static ArrayList<Bank> banks = new ArrayList<>();
+    static BankDB bankDataBase = new BankDB();
 
-
-    public static void main(String[] args) throws IOException {
-        testCode();
+    public static void main(String[] args) throws IOException{
+        bankDataBase.createTables();
+        banks = bankDataBase.selectBanks();
         menu();
     }
 
-    static void testCode() {
-        Bank testBank = new Bank("Test Bank", 1000000000,
-                0.003F, 0.07F);
-        testBank.ownerLogin = "admin";
-        testBank.ownerPassword = "admin";
-        banks.add(testBank);
-        Client testClient = new Client(Client.clientIDGenerator(1),
-                new PersonalData("Luke", "Lucky", 77777777777L,
-                        LocalDate.parse("1997-07-07"), "luke@gmail.com",
-                        777777777L), 1);
-        testClient.clientID = 777;
-        testClient.clientPassword = "admin";
-        testBank.clients.add(testClient);
-    }
-
-    private static void menu() throws IOException {
+    private static void menu() throws IOException{
         clearScreen();
         System.out.println(logo);
         System.out.println(
@@ -76,7 +63,7 @@ public class Main {
         }
     }
 
-    static void bankMenu() throws IOException {
+    static void bankMenu() throws IOException{
         clearScreen();
         System.out.println(logo);
         System.out.println(
@@ -154,7 +141,7 @@ public class Main {
         }
     }
 
-    static void clientMenu() throws IOException {
+    static void clientMenu() throws IOException{
         clearScreen();
         System.out.println(logo);
         System.out.println(
@@ -207,10 +194,20 @@ public class Main {
                         waitForUser();
                     }
                 }
-                clearScreen();
-                System.out.println(logo);
-                System.out.print("\nEnter client ID: ");
-                int inClientID = scanner.nextInt();
+                int inClientID;
+                while (true) {
+                    clearScreen();
+                    System.out.println(logo);
+                    System.out.print("\nEnter client ID: ");
+                    try {
+                        inClientID = scanner.nextInt();
+                        break;
+                    } catch (InputMismatchException e) {
+                        System.out.println("Invalid format, please try again");
+                        scanner.next();
+                        waitForUser();
+                    }
+                }
                 for (Client acc : banks.get(choiceBank - 1).clients) {
                     if (inClientID == acc.clientID) {
                         if (acc.logInToClient()) {
@@ -248,4 +245,5 @@ public class Main {
         System.out.print("\033[H\033[2J");
         System.out.flush();
     }
+
 }

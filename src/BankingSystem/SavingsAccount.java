@@ -1,3 +1,5 @@
+package BankingSystem;
+
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -6,7 +8,7 @@ public class SavingsAccount extends Account{
     float interestRate;
     SavingsAccount(String accountNumber, String accountType, Bank accountBank,
                    float accountResources, float interestRate) {
-        super(accountNumber, accountType, accountResources, accountBank);
+        super(accountNumber, accountType, accountResources, accountBank, null);
         this.interestRate = interestRate;
     }
 

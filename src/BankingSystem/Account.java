@@ -1,3 +1,5 @@
+package BankingSystem;
+
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -15,11 +17,11 @@ public class Account {
     ArrayList<Transfer> accountTransfers;
 
     Account(String accountNumber, String accountType, float accountResources,
-            Bank accountBank) {
+            Bank accountBank, LocalDate accountCreationDate) {
         this.accountNumber = accountNumber;
         this.accountType = accountType;
         this.accountResources = accountResources;
-        this.accountCreationDate = LocalDate.now();
+        this.accountCreationDate = Objects.requireNonNullElseGet(accountCreationDate, LocalDate::now);
         this.accountTransfers = new ArrayList<>();
         this.accountBank = accountBank;
         this.accountCard = null;
@@ -69,7 +71,7 @@ public class Account {
                 }
 
                 return new Account(accountNumberGenerator(clientBank),
-                        "Regular account", res, clientBank);
+                        "Regular account", res, clientBank, null);
             case 2:
                 float resSavings;
                 while (true) {
@@ -114,6 +116,9 @@ public class Account {
         do {
             individualAccNumber = Main.rand.nextLong(range) + 100000000;
         } while (!accountCheckNumber(individualAccNumber, clientBank));
+
+        Main.bankDataBase.insertIndividualClientNumber(individualAccNumber, clientBank.ownerID);
+
         clientBank.individualClientNumbers.add(individualAccNumber);
         return ("PL"
                 + accountCheckDigitGenerator((clientBank.bic)
@@ -190,6 +195,11 @@ public class Account {
             case 3:
                 if (Objects.isNull(this.accountCard)) {
                     this.accountCard = Card.creatingCardMenu(this.accountBank);
+
+                    Main.bankDataBase.insertCard(this.accountCard.cardNumber,
+                            this.accountCard.cardType, this.accountCard.cardPIN);
+
+                    Main.bankDataBase.addCardToAccount(this.accountNumber, this.accountCard.cardNumber);
                 } else {
                     int newPIN;
                     while (true) {
@@ -214,6 +224,7 @@ public class Account {
                     }
 
                     this.accountCard.setCardPIN(newPIN);
+                    Main.bankDataBase.changeCardPin(this.accountCard.cardNumber, newPIN);
                     System.out.println("Card pin changed successfully");
                 }
                 Main.waitForUser();
