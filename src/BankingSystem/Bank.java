@@ -127,12 +127,46 @@ public class Bank {
                 bankDashboard();
             }
             case 3 -> {
-                System.out.println("coming soon...");
+                if (Main.banks.size() <= 1) {
+                    Main.clearScreen();
+                    System.out.println(Main.logo);
+                    System.out.println("\nThere are no banks to import from");
+                    Main.waitForUser();
+                    Main.bankMenu();
+                }
+                int choiceBank;
+                while (true) {
+                    Main.clearScreen();
+                    System.out.println(Main.logo);
+                    System.out.println("\nSelect a bank: ");
+                    for (int counter = 0; counter < Main.banks.size(); counter++) {
+                        System.out.println(counter + 1 + ". " + Main.banks.get(counter).getBankName());
+                    }
+                    try {
+                        System.out.print("\nchoice: ");
+                        choiceBank = Main.scanner.nextInt();
+                        Main.banks.get(choiceBank - 1);
+                        if (Main.banks.get(choiceBank - 1).equals(this)){
+                            System.out.println("Cannot import from the same bank");
+                            Main.waitForUser();
+                            continue;
+                        }
+                        break;
+                    } catch (InputMismatchException e) {
+                        System.out.println("Invalid format, please try again");
+                        Main.scanner.next();
+                        Main.waitForUser();
+                    } catch (IndexOutOfBoundsException e) {
+                        System.out.println("Wrong choice, please try again");
+                        Main.waitForUser();
+                    }
+                }
+                CsvCreator.importClientsCsv(Main.banks.get(choiceBank - 1), this);
                 Main.waitForUser();
                 bankDashboard();
             }
             case 4 -> {
-                System.out.println("coming soon...");
+                CsvCreator.exportClientsCSV(this.clients, this.bankName);
                 Main.waitForUser();
                 bankDashboard();
             }
@@ -254,8 +288,20 @@ public class Bank {
     }
 
     boolean logInToBank() throws IOException {
-        System.out.print("\nEnter owner login: ");
-        int inLogin = Main.scanner.nextInt();
+        int inLogin;
+        while (true) {
+            Main.clearScreen();
+            System.out.println(Main.logo);
+            System.out.print("\nEnter owner login: ");
+            try {
+                inLogin = Main.scanner.nextInt();
+                break;
+            }catch (InputMismatchException e) {
+                System.out.println("Invalid format, please try again");
+                Main.scanner.next();
+                Main.waitForUser();
+            }
+        }
         System.out.print("Enter password: ");
         String inPassword = Main.scanner.next();
         if (inLogin != this.ownerID) {

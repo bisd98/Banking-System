@@ -1,6 +1,7 @@
 package BankingSystem;
 
 import java.io.IOException;
+import java.sql.Date;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
@@ -97,6 +98,15 @@ public class Client {
     }
 
     boolean logInToClient() throws IOException {
+        if (this.clientPassword == null){
+            System.out.print("\nSet password for your account: ");
+            this.setClientPassword(Main.scanner.next());
+            System.out.println("\nPassword successfully set");
+            Main.waitForUser();
+            Main.bankDataBase.insertClient(this.clientID, this.clientPersonalData.personalID,
+                    this.clientPassword, Date.valueOf(this.clientJoinDate), this.clientBank.ownerID);
+            return true;
+        }
         System.out.print("Enter password: ");
         String inClientPassword = Main.scanner.next();
         if (!Objects.equals(inClientPassword, this.clientPassword)) {
@@ -114,7 +124,7 @@ public class Client {
             clientDashboard();
         }
         for (int counter = 0; counter < this.clientBankAccounts.size(); counter++) {
-            System.out.println("\n" + (counter + 1) + ". BankingSystem.Account number: "
+            System.out.println("\n" + (counter + 1) + ". Account number: "
                     + this.clientBankAccounts.get(counter).accountNumber
                     + "\n   Type: " + this.clientBankAccounts.get(counter).accountType
                     + "\n   Resources: " + Main.df.format(this.clientBankAccounts.get(counter).accountResources)
@@ -132,8 +142,8 @@ public class Client {
     void clientDashboard() throws IOException{
         Main.clearScreen();
         System.out.println(Main.logo);
-        System.out.println("\nBankingSystem.Bank name: " + this.clientBank.bankName);
-        System.out.println("BankingSystem.Client ID: " + this.clientID);
+        System.out.println("\nBank name: " + this.clientBank.bankName);
+        System.out.println("Client ID: " + this.clientID);
         System.out.println("Join date: " + this.clientJoinDate);
         System.out.println(
                 "\nSelect:\n" +
@@ -197,7 +207,7 @@ public class Client {
                             newAccount.accountType, newAccount.accountResources,
                             java.sql.Date.valueOf(newAccount.accountCreationDate), null);
                     this.clientBankAccounts.add(newAccount);
-                    System.out.println("\nBankingSystem.Bank account successfully opened");
+                    System.out.println("\nBank account successfully opened");
                 }
                 Main.waitForUser();
                 clientDashboard();

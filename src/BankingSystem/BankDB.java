@@ -309,6 +309,7 @@ public class BankDB {
                 loadedClient.clientPassword = result.getString("ClientPassword");
                 loadedClient.clientBank = clientBank;
                 loadedClient.clientBankAccounts = selectAccounts(loadedClient.clientID, clientBank);
+                Client.clientIDNumbers.add(loadedClient.clientID);
                 loadedClients.add(loadedClient);
             }
         } catch (SQLException e) {
@@ -478,6 +479,17 @@ public class BankDB {
         try (PreparedStatement statement = conn.prepareStatement(sql)) {
             statement.setInt(1, newPin);
             statement.setString(2, cardNumber);
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    void updateResourcesOfSavingAcc(String accountNumber, float updatedResources){
+        String sql = "UPDATE Account SET AccountResources = ? WHERE AccountNumber = ?";
+        try (PreparedStatement statement = conn.prepareStatement(sql)) {
+            statement.setFloat(1, updatedResources);
+            statement.setString(2, accountNumber);
             statement.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();

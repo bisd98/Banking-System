@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Objects;
 
+
 public class Account {
     String accountNumber;
     String accountType;
@@ -188,7 +189,7 @@ public class Account {
                 accountDashboard();
                 break;
             case 2:
-                System.out.println("coming soon...");
+                CsvCreator.exportTransfersCSV(this.accountTransfers, this.accountNumber);
                 Main.waitForUser();
                 accountDashboard();
                 break;

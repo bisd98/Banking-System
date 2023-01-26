@@ -17,7 +17,8 @@ public class SavingsAccount extends Account{
         scheduler.scheduleAtFixedRate(() -> {
             this.accountBank.bankResources -= this.accountResources * this.interestRate;
             this.accountResources += this.accountResources * this.interestRate;
-        }, 0, 1, TimeUnit.MINUTES);
+            Main.bankDataBase.updateResourcesOfSavingAcc(this.accountNumber, this.accountResources);
+        }, 0, 5, TimeUnit.MINUTES);
     }
 
 }

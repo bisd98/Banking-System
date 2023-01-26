@@ -118,8 +118,6 @@ public class Main {
                         waitForUser();
                     }
                 }
-                clearScreen();
-                System.out.println(logo);
                 if (banks.get(choiceBank - 1).logInToBank()) {
                     banks.get(choiceBank - 1).bankDashboard();
                 } else {
