@@ -112,10 +112,13 @@ public class Account {
 
 
     static String accountNumberGenerator(Bank clientBank) {
-        long range = 9999999999999999L - 1000000000000000L + 1;
         long individualAccNumber;
         do {
-            individualAccNumber = Main.rand.nextLong(range) + 100000000;
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < 16; i++) {
+                sb.append(Main.rand.nextInt(10));
+            }
+            individualAccNumber = Long.parseLong(sb.toString());
         } while (!accountCheckNumber(individualAccNumber, clientBank));
 
         Main.bankDataBase.insertIndividualClientNumber(individualAccNumber, clientBank.ownerID);
